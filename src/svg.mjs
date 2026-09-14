@@ -1,5 +1,5 @@
 import {assert} from './parse.mjs';
-import {palettes} from './theme.mjs';
+import {palettes, fontFamily} from './theme.mjs';
 
 export const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 export const num = n => {assert(Number.isFinite(n),'그림 좌표가 유효하지 않습니다.');return Math.round(n*1000)/1000;};
@@ -10,7 +10,7 @@ export function textWidth(text,size=14) {
   // conservative estimate; browser geometry verification remains authoritative.
   if(typeof window!=='undefined'&&!/jsdom/i.test(window.navigator?.userAgent||'')){
     const ctx=textWidth.context ||= document.createElement('canvas').getContext('2d');
-    if(ctx){ctx.font=`${size}px "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif`;return ctx.measureText(String(text)).width;}
+    if(ctx){ctx.font=`${size}px ${fontFamily}`;return ctx.measureText(String(text)).width;}
   }
   return [...String(text)].reduce((sum,c)=>sum+size*(/[^\u0000-\u00ff]/.test(c)?1:/[MW@%]/.test(c)?.92:/[A-Z0-9]/.test(c)?.68:/[il.,:;'!| ]/.test(c)?.36:.62),0);
 }
@@ -71,5 +71,5 @@ export const themeCSS = `
 .md-surface{${Object.keys(palettes.light).map(key=>`--md-${key}:light-dark(${palettes.light[key]},${palettes.dark[key]});`).join('')}}
 .theme-light .md-surface,[data-theme=light] .md-surface{color-scheme:light}.theme-dark .md-surface,.dark .md-surface,[data-theme=dark] .md-surface{color-scheme:dark}
 .md-surface[data-theme=light]{color-scheme:light}.md-surface[data-theme=dark]{color-scheme:dark}
-.md-diagram{font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;display:block}.md-diagram [data-edge]{vector-effect:non-scaling-stroke}
+.md-diagram{font-family:${fontFamily};display:block}.md-diagram [data-edge]{vector-effect:non-scaling-stroke}
 `;

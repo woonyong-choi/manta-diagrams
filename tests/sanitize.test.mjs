@@ -20,6 +20,7 @@ test('SVG sanitization preserves the presentation lost by HTML sanitization', ()
   for (const dark of [false,true]) {
     const svg = sanitizeSvg(source,{dark}).querySelector('svg');
     assert.equal(svg.querySelector('style,[style]'),null);
+    assert.equal(svg.style.filter,'none');
     assert.equal(svg.querySelector('.railroad-line').getAttribute('stroke-width'),'2');
     assert.equal(svg.querySelector('rect').getAttribute('fill'),dark?'#161b22':'#f6f8fa');
     assert.equal(svg.querySelector('rect').getAttribute('opacity'),'0.8');
@@ -56,4 +57,29 @@ test('external styles and SVG resource URLs cannot load through the diagram', ()
     '<rect fill="url(https://example.com/paint.svg)"/>',
     '<style>.node{fill:u\\72l(https://example.com/paint.svg)}</style>',
   ]) assert.throws(()=>sanitizeSvg(`<svg>${body}</svg>`),/external|External/);
+});
+
+test('eventmodeling HTML labels retain bold, line breaks and centering across the host boundary', () => {
+  const source = `<svg xmlns="http://www.w3.org/2000/svg"><g class="em-box"><foreignObject x="260" y="25" width="120" height="80"><div style="display:table;width:100%;height:100%"><span style="display:table-cell;text-align:center;vertical-align:middle"><b>장바구니</b><br/><code>item: UUID</code></span></div></foreignObject></g></svg>`;
+  const hostSanitize = value => {
+    const fragment=document.createRange().createContextualFragment(value);
+    fragment.querySelectorAll('style').forEach(node=>node.remove());
+    fragment.querySelectorAll('[style]').forEach(node=>node.removeAttribute('style'));
+    return fragment;
+  };
+  for(const dark of [false,true]) {
+    const svg=sanitizeSvg(source,{dark,hostSanitize}).querySelector('svg');
+    const label=svg.querySelector('foreignObject');
+    assert.equal(label.querySelector('b').textContent,'장바구니');
+    assert.equal(label.querySelector('code').textContent,'item: UUID');
+    assert.equal(label.querySelectorAll('br').length,1);
+    assert.deepEqual(['x','y','width','height'].map(name=>label.getAttribute(name)),['260','25','120','80']);
+    assert.equal(label.querySelector('div').style.display,'table');
+    assert.equal(label.querySelector('span').style.verticalAlign,'middle');
+    assert.equal(label.querySelector('code').style.textAlign,'left');
+    assert.equal(svg.style.color,dark?'rgb(230, 237, 243)':'rgb(31, 35, 40)');
+  }
+  assert.throws(()=>sanitizeSvg(source,{hostSanitize:value=>{
+    const fragment=hostSanitize(value);fragment.querySelector('b').remove();return fragment;
+  }}),/labels/);
 });

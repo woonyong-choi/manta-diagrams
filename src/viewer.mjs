@@ -1,4 +1,4 @@
-import {renderDocument} from './document.mjs';
+import {renderDocument, diagramViewport} from './document.mjs';
 
 /** A disposable, read-only viewer shared by Obsidian and the public demo. */
 export function mountViewer(root, source, {sanitize, icon, dark = false, inline = false, open, onError = () => {}}) {
@@ -51,11 +51,7 @@ export function mountViewer(root, source, {sanitize, icon, dark = false, inline 
   const fit = (read = !fitToView) => {
     if (!result || !stage.clientWidth || !stage.clientHeight) return;
     if (inline) stage.style.height = Math.max(160, Math.min(600, result.height + 48)) + 'px';
-    const ratio = stage.clientWidth / stage.clientHeight;
-    const width = read ? stage.clientWidth : Math.max(result.width + 48, (result.height + 48) * ratio);
-    view = {x: (result.x || 0) + (read && result.width + 48 > width ? -24 : (result.width - width) / 2),
-      y: (result.y || 0) + (read && result.height + 48 > width / ratio ? -24 : (result.height - width / ratio) / 2),
-      width, height: width / ratio};
+    view = diagramViewport(result, stage.clientWidth, stage.clientHeight, !read);
     paint();
   };
   const zoom = factor => {
@@ -115,9 +111,7 @@ export function mountViewer(root, source, {sanitize, icon, dark = false, inline 
       const text = element => [...element.querySelectorAll('text,foreignObject')].map(node => node.textContent).join('').replace(/\s+/g, '');
       const before = new DOMParser().parseFromString(next.svg, 'text/html').querySelector('svg');
       if (text(svg) !== text(before)) throw new Error('Some labels could not be displayed safely. Review the unchanged Mermaid source below.');
-      svg.removeAttribute('style'); svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
-      svg.style.cssText = 'display:block;max-width:none;filter:none;font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif';
-      svg.querySelectorAll('[data-edge]').forEach(edge => edge.setAttribute('vector-effect', 'non-scaling-stroke'));
+      svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
       // Callbacks are never bound. Safe anchors remain ordinary user-activated links.
       canvas.querySelectorAll('a').forEach(anchor => {
         const href = anchor.getAttribute('href') || anchor.getAttribute('xlink:href') || '';

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<!doctype html><html><body></body></html>', {pretendToBeVisual:true});
 for (const name of ['window','document','DOMParser','HTMLElement','SVGElement','Element','Node']) globalThis[name] = dom.window[name];
-const {diagramAt, renderDocument} = await import('../src/document.mjs');
+const {diagramAt, renderDocument, diagramViewport} = await import('../src/document.mjs');
 const {default: mermaid} = await import('mermaid');
 
 test('selects the exact complete fenced source around the cursor', () => {
@@ -14,6 +14,17 @@ test('selects the exact complete fenced source around the cursor', () => {
   assert.equal(diagramAt('```mermaid\nA-->B', 1), null);
   assert.equal(diagramAt('````mermaid\n```\nA-->B\n````', 2), '```\nA-->B');
   assert.equal(diagramAt('````text\n```mermaid\nA-->B\n```\n````', 2), null);
+});
+
+test('large diagrams open at readable size and fit only on request', () => {
+  const result={x:-40,y:-20,width:2200,height:1400};
+  const reading=diagramViewport(result,640,480);
+  assert.deepEqual(reading,{x:-64,y:-44,width:640,height:480});
+  const fit=diagramViewport(result,640,480,true);
+  assert(fit.width>=result.width+48);
+  assert(fit.height>=result.height+48);
+  assert.equal(640/reading.width,1);
+  assert(640/fit.width<1);
 });
 
 test('ordinary diagrams use the same Manta renderer as explicit layouts', async () => {

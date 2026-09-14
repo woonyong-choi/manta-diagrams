@@ -9,7 +9,8 @@ test('preview pointer interactions',async t=>{
   const dom=new JSDOM(template,{runScripts:'outside-only'}),{window}=dom;
   t.after(()=>window.close());
   Object.assign(globalThis,{window,document:window.document,DOMParser:window.DOMParser});
-  const {renderDocument:render}=await import('../src/document.mjs');
+  const {renderDocument:render,diagramViewport}=await import('../src/document.mjs');
+  const {palettes}=await import('../src/theme.mjs');
   const {verify}=await import('../src/renderer.mjs');
   const {sanitizeSvg}=await import('../src/sanitize.mjs');
   const {cases}=await import('../src/cases.mjs');
@@ -37,7 +38,7 @@ test('preview pointer interactions',async t=>{
   window.Element.prototype.hasPointerCapture=function(id){return captures.get(this)===id;};
   window.Element.prototype.releasePointerCapture=function(id){if(this.hasPointerCapture(id))captures.delete(this);};
   window.ResizeObserver=class{observe(){}disconnect(){}};
-  Object.assign(window,{render,verify,sanitizeSvg,cases:cases.filter(c=>c.id==='tree'),payload:{report:{types:{passed:0},complex:{passed:0}}}});
+  Object.assign(window,{render,diagramViewport,palettes,verify,sanitizeSvg,cases:cases.filter(c=>c.id==='tree'),payload:{report:{types:{passed:0},complex:{passed:0}}}});
   for(const script of window.document.querySelectorAll('script:not([type])'))window.eval(script.textContent);
   window.eval(script.replace(/^import .*;\n/gm,''));
   const ready=async(expected='ready')=>{

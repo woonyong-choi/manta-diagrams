@@ -1,6 +1,7 @@
-import {renderDocument as render} from './document.mjs';
+import {renderDocument as render, diagramViewport} from './document.mjs';
 import {verify} from './renderer.mjs';
 import {sanitizeSvg} from './sanitize.mjs';
+import {palettes} from './theme.mjs';
 import {cases} from './cases.mjs';
 import {payload} from 'preview-payload';
 const root=document.getElementById('mermaid-design-preview');
@@ -9,9 +10,8 @@ const items=cases;
 for(const item of items){const option=document.createElement('option');option.value=item.id;option.textContent=item.label;select.append(option);}
 let current,revision=0,view={x:0,y:0,w:736,h:520},fitMode=false,gesture;
 function paintView(){const svg=stage.querySelector('svg');if(svg)svg.setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`);const r=el('map').querySelector('[data-viewport]');if(r)for(const[k,v]of Object.entries({x:view.x,y:view.y,width:view.w,height:view.h}))r.setAttribute(k,v);}
-function setView(fit){if(!current)return;fitMode=fit;const ratio=stage.clientWidth/stage.clientHeight;
-  if(fit){const w=Math.max(current.width,current.height*ratio);view={x:(current.width-w)/2,y:(current.height-w/ratio)/2,w,h:w/ratio};}
-  else {const target=stage.querySelector('[data-node]'),b=target?.getBBox();const parent=current.model.nodes.find(n=>n.id===target?.dataset.node)?.parentId;const group=[...stage.querySelectorAll('[data-group]')].find(g=>g.dataset.group===parent)?.getBBox();const anchored=['architecture','flowchart','tree','er','uml-class','state','loop'].includes(current.type),focus=group||b,vertical=/^(TB|TD|BT)$/.test(current.model.direction)||current.type==='loop';view={x:anchored&&focus?Math.max(0,focus.x+(vertical?focus.width/2-stage.clientWidth/2:-32)):Math.min(0,(current.width-stage.clientWidth)/2),y:anchored&&focus?Math.max(0,focus.y+(vertical?-32:focus.height/2-stage.clientHeight/2)):Math.min(0,(current.height-stage.clientHeight)/2),w:stage.clientWidth,h:stage.clientHeight};}
+function setView(fit){if(!current)return;fitMode=fit;
+  const box=diagramViewport(current,stage.clientWidth,stage.clientHeight,fit);view={x:box.x,y:box.y,w:box.width,h:box.height};
   paintView();}
 function zoom(factor){if(!current)return;fitMode=false;const limit=Math.max(current.width,current.height*stage.clientWidth/stage.clientHeight)*2,nw=Math.min(limit,Math.max(160,view.w*factor)),nh=nw*stage.clientHeight/stage.clientWidth;view={x:view.x+(view.w-nw)/2,y:view.y+(view.h-nh)/2,w:nw,h:nh};paintView();}
 function focusNode(id){const node=[...stage.querySelectorAll('[data-node]')].find(n=>n.getAttribute('data-node')===id);if(!node)return;stage.querySelectorAll('[data-node]').forEach(n=>n.toggleAttribute('data-selected',n===node));const box=node.getBBox();view={x:box.x+box.width/2-stage.clientWidth/2,y:box.y+box.height/2-stage.clientHeight/2,w:stage.clientWidth,h:stage.clientHeight};fitMode=false;paintView();nodeSelect.value=id;}
@@ -21,7 +21,7 @@ async function update(){endGesture();const ticket=++revision;root.dataset.render
   status.textContent=next.stats.nodes?`${next.stats.nodes}개 노드 · ${next.model.sankey?.links.length??next.stats.edges}개 연결${next.stats.groups?' · '+next.stats.groups+'개 그룹':''}`:'입력 데이터 렌더링 완료';
   const map=el('map');map.hidden=next.width<stage.clientWidth*1.5&&next.height<stage.clientHeight*1.5;map.replaceChildren();
   if(!map.hidden){const mini=stage.querySelector('svg').cloneNode(true);mini.querySelectorAll('text,title,desc,defs').forEach(n=>n.remove());mini.querySelectorAll('[id],[marker-start],[marker-end]').forEach(n=>{n.removeAttribute('id');n.removeAttribute('marker-start');n.removeAttribute('marker-end');});mini.removeAttribute('aria-labelledby');const windowRect=document.createElementNS('http://www.w3.org/2000/svg','rect');windowRect.setAttribute('data-viewport','');windowRect.setAttribute('fill','var(--md-tint)');windowRect.setAttribute('fill-opacity','.3');windowRect.setAttribute('stroke','var(--md-accent)');windowRect.setAttribute('vector-effect','non-scaling-stroke');mini.append(windowRect);map.append(mini);}
-  setView(next.width<=stage.clientWidth&&next.height<=stage.clientHeight);root.dataset.renderStatus='ready';
+  setView(false);root.dataset.renderStatus='ready';
 }catch(e){if(ticket!==revision)return;current=null;stage.replaceChildren();stage.hidden=true;el('map').replaceChildren();el('map').hidden=true;nodeSelect.replaceChildren();el('node-label').hidden=true;el('help').hidden=true;for(const id of ['fit','read','in','out'])el(id).disabled=true;root.dataset.renderStatus='error';error.hidden=false;error.textContent=e.message;status.textContent='입력 확인 필요';}}
 function choose(){const item=items.find(x=>x.id===select.value);source.value=item[el('case').value];el('purpose').textContent=item.purpose;update();}
 select.addEventListener('change',choose);el('case').addEventListener('change',choose);
@@ -77,8 +77,8 @@ el('run-checks').addEventListener('click',async()=>{
   const checks=[],measure=el('measure'),button=el('run-checks');button.disabled=true;root.dataset.browserChecks='running';
   for(const example of cases)for(const kind of ['basic','complex']){
     try{
-      const result=await render(example[kind],{id:'check-'+example.id+'-'+kind});if(result.model)verify(result);
       for(const theme of ['light','dark']){
+        const result=await render(example[kind],{id:'check-'+example.id+'-'+kind+'-'+theme,dark:theme==='dark'});if(result.model)verify(result);
         measure.dataset.theme=theme;measure.replaceChildren(sanitizeSvg(result.svg,{dark:theme==='dark'}));
         await new Promise(requestAnimationFrame);
         const svg=measure.querySelector('svg'),outside=[],overlaps=[],overflow=[],small=[];
@@ -134,6 +134,16 @@ el('run-checks').addEventListener('click',async()=>{
   ]){measure.innerHTML='<div><div class="md-surface"><svg><rect width="1" height="1" fill="var(--md-paper)"/></svg></div></div>';const host=measure.firstElementChild,surface=host.firstElementChild;
     host.className=className;if(attribute)host.dataset.theme=attribute;host.style.colorScheme=inherited;if(override)surface.dataset.theme=override;
     const actual=getComputedStyle(surface).colorScheme;themeChecks.push({name,expected,actual,ok:actual===expected,paper:getComputedStyle(surface.querySelector('rect')).fill});
+  }measure.replaceChildren();
+  for(const theme of ['light','dark']){
+    try{
+      const result=await render('railroad-peg-beta\nExpression <- Term (("+" / "-") Term)* ;',{id:'check-railroad-'+theme,dark:theme==='dark'});
+      measure.replaceChildren(sanitizeSvg(result.svg,{dark:theme==='dark'}));
+      const svg=measure.querySelector('svg'),label=[...svg.querySelectorAll('text')].find(node=>node.textContent==='+');
+      const terminal=label?.parentElement.querySelector('rect'),p=palettes[theme];
+      themeChecks.push({name:'railroad-'+theme,ok:result.engine==='Mermaid'&&label?.getAttribute('fill')===p.ink&&terminal?.getAttribute('fill')===p.surface,
+        label:label?.getAttribute('fill'),surface:terminal?.getAttribute('fill'),expected:{ink:p.ink,surface:p.surface}});
+    }catch(error){themeChecks.push({name:'railroad-'+theme,ok:false,error:error.message});}
   }measure.replaceChildren();
   button.disabled=false;root.dataset.browserChecks=checks.every(c=>c.ok)&&themeChecks.every(c=>c.ok)?'passed':'failed';root.dataset.checkResults=JSON.stringify(checks);root.dataset.themeChecks=JSON.stringify(themeChecks);
   el('check-output').textContent=`브라우저 경계·겹침·읽기 크기: ${checks.filter(c=>c.ok).length}/${checks.length}\n앱·사이트 테마 규칙: ${themeChecks.filter(c=>c.ok).length}/${themeChecks.length}\n`+checks.filter(c=>!c.ok).map(c=>`${c.id} · ${c.kind} · ${c.theme||''}: ${c.error||[...c.outside,...c.overlaps.map(p=>p.join(' / ')),...c.overflow,...c.small].join(', ')}`).concat(themeChecks.filter(c=>!c.ok).map(c=>c.name+': '+c.actual)).join('\n');

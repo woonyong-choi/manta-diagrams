@@ -1,8 +1,17 @@
 import mermaid from 'mermaid';
 import {render, verify} from './renderer.mjs';
-import {mermaidTheme, palettes} from './theme.mjs';
+import {mermaidTheme, palettes, fontFamily} from './theme.mjs';
 
 let queue = Promise.resolve();
+
+/** Use one CSS pixel per diagram unit until the reader explicitly chooses Fit. */
+export function diagramViewport(result, width, height, fit = false) {
+  const ratio = width / height;
+  const w = fit ? Math.max(result.width + 48, (result.height + 48) * ratio) : width;
+  return {x:(result.x || 0) + (!fit && result.width + 48 > w ? -24 : (result.width - w) / 2),
+    y:(result.y || 0) + (!fit && result.height + 48 > w / ratio ? -24 : (result.height - w / ratio) / 2),
+    width:w, height:w / ratio};
+}
 
 /** Locate a complete Mermaid fence without changing its contents. */
 export function diagramAt(text, line) {
@@ -46,7 +55,7 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
       theme: original || authoredFeatures ? (dark ? 'dark' : 'neutral') : 'base',
       ...(!original && !authoredFeatures ? {look: 'classic', themeVariables:mermaidTheme(dark)} : {}),
       htmlLabels: false, maxTextSize: 50000, maxEdges: 500,
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily,
       flowchart: {htmlLabels: false, useMaxWidth: false, nodeSpacing: 36, rankSpacing: 56},
       sequence: {useMaxWidth:false, actorMargin:42, width:130, diagramMarginX:24, diagramMarginY:24, mirrorActors:false},
       railroad: {terminalFill:palette.surface,terminalStroke:palette.border,terminalTextColor:palette.ink,
