@@ -144,6 +144,15 @@ el('run-checks').addEventListener('click',async()=>{
       themeChecks.push({name:'railroad-'+theme,ok:result.engine==='Mermaid'&&label?.getAttribute('fill')===p.ink&&terminal?.getAttribute('fill')===p.surface,
         label:label?.getAttribute('fill'),surface:terminal?.getAttribute('fill'),expected:{ink:p.ink,surface:p.surface}});
     }catch(error){themeChecks.push({name:'railroad-'+theme,ok:false,error:error.message});}
+    try{
+      const result=await render('mindmap\n root((원문))\n  보존\n  검증',{id:'check-mindmap-'+theme,dark:theme==='dark'});
+      measure.replaceChildren(sanitizeSvg(result.svg,{dark:theme==='dark'}));
+      measure.style.color=palettes[theme].muted;
+      const expected=getComputedStyle(measure).color;
+      const edges=[...measure.querySelectorAll('path.edge')].map(edge=>({stroke:getComputedStyle(edge).stroke,fill:getComputedStyle(edge).fill,width:parseFloat(getComputedStyle(edge).strokeWidth)}));
+      themeChecks.push({name:'mindmap-'+theme,ok:edges.length===2&&edges.every(edge=>edge.stroke===expected&&edge.fill==='none'&&edge.width>0),edges,expected});
+      measure.style.removeProperty('color');
+    }catch(error){themeChecks.push({name:'mindmap-'+theme,ok:false,error:error.message});}
   }measure.replaceChildren();
   button.disabled=false;root.dataset.browserChecks=checks.every(c=>c.ok)&&themeChecks.every(c=>c.ok)?'passed':'failed';root.dataset.checkResults=JSON.stringify(checks);root.dataset.themeChecks=JSON.stringify(themeChecks);
   el('check-output').textContent=`브라우저 경계·겹침·읽기 크기: ${checks.filter(c=>c.ok).length}/${checks.length}\n앱·사이트 테마 규칙: ${themeChecks.filter(c=>c.ok).length}/${themeChecks.length}\n`+checks.filter(c=>!c.ok).map(c=>`${c.id} · ${c.kind} · ${c.theme||''}: ${c.error||[...c.outside,...c.overlaps.map(p=>p.join(' / ')),...c.overflow,...c.small].join(', ')}`).concat(themeChecks.filter(c=>!c.ok).map(c=>c.name+': '+c.actual)).join('\n');

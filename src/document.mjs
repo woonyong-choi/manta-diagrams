@@ -53,7 +53,15 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
     mermaid.initialize({
       startOnLoad: false, securityLevel: 'strict', suppressErrorRendering: true,
       theme: original || authoredFeatures ? (dark ? 'dark' : 'neutral') : 'base',
-      ...(!original && !authoredFeatures ? {look: 'classic', themeVariables:mermaidTheme(dark)} : {}),
+      ...(!original && !authoredFeatures ? {look: 'classic', themeVariables:mermaidTheme(dark),
+        // Mermaid derives the same section color for mindmap fills and edges;
+        // darkening an already dark surface turns both black. Keep their roles separate.
+        themeCSS: /^\s*mindmap\b/m.test(source) ? `
+          .mindmap-node rect,.mindmap-node path,.mindmap-node circle,.mindmap-node polygon {fill:${palette.surface}!important;stroke:${palette.border}!important;}
+          .mindmap-node text {fill:${palette.ink}!important;}
+          .edge {stroke:${palette.muted}!important;}
+        ` : '',
+      } : {}),
       htmlLabels: false, maxTextSize: 50000, maxEdges: 500,
       fontFamily,
       flowchart: {htmlLabels: false, useMaxWidth: false, nodeSpacing: 36, rankSpacing: 56},
