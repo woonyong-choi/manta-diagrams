@@ -86,7 +86,6 @@ export function mountViewer(root, source, {sanitize, icon, dark = false, inline 
     }
     probe.remove();
     svg.style.colorScheme = dark ? 'dark' : 'light';
-    svg.style.fontFamily = 'system-ui, sans-serif';
     const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     for (const [key,value] of Object.entries({x,y,width,height,fill:svg.style.getPropertyValue('--md-paper')})) background.setAttribute(key,String(value));
     svg.prepend(background);
@@ -140,6 +139,7 @@ export function mountViewer(root, source, {sanitize, icon, dark = false, inline 
   }
   stage.addEventListener('pointerdown', event => {
     if (!result || event.button !== 0 || event.composedPath()[0]?.closest?.('a')) return;
+    stage.focus({preventScroll: true});
     gesture = {id: event.pointerId, x: event.clientX, y: event.clientY, view: {...view}};
     stage.setPointerCapture(event.pointerId); stage.classList.add('is-dragging'); event.preventDefault();
   }, {signal});
@@ -165,7 +165,7 @@ export function mountViewer(root, source, {sanitize, icon, dark = false, inline 
     else if (event.key === 'ArrowDown') view.y += amount;
     else if (event.key === '+' || event.key === '=') zoom(0.8);
     else if (event.key === '-') zoom(1.25);
-    else if (event.key === '0') fit();
+    else if (event.key === '0') {fitToView = true; fit(false);}
     else return;
     event.preventDefault(); paint();
   }, {signal});
