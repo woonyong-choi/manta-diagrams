@@ -14,9 +14,9 @@ class DiagramModal extends Modal {
 }
 
 class InlineDiagram extends MarkdownRenderChild {
-  constructor(element, source) {super(element); this.source = source;}
+  constructor(element, source, inline = false, open) {super(element); this.source = source; this.inline = inline; this.open = open;}
   onload() {this.dispose = mountViewer(this.containerEl, this.source, {sanitize: sanitizeHTMLToDom,
-    dark: document.body.classList.contains('theme-dark')});}
+    dark: document.body.classList.contains('theme-dark'), inline: this.inline, open: this.open});}
   onunload() {this.dispose?.();}
 }
 
@@ -39,19 +39,8 @@ export default class MantaDiagrams extends Plugin {
     this.registerMarkdownCodeBlockProcessor('manta', (source, element, context) => {
       context.addChild(new InlineDiagram(element, source));
     });
-    this.registerMarkdownPostProcessor((element, context) => {
-      for (const diagram of element.querySelectorAll('.mermaid')) {
-        if (diagram.querySelector('.manta-open-diagram')) continue;
-        const section = context.getSectionInfo(diagram);
-        if (!section) continue;
-        const source = diagramAt(section.text, section.lineStart);
-        if (!source) continue;
-        const owner = new MarkdownRenderChild(diagram);
-        const button = diagram.createEl('button', {text: 'Open in Manta', cls: 'manta-open-diagram'});
-        owner.registerDomEvent(button, 'click', () => this.openDiagram(source));
-        owner.register(() => button.remove());
-        context.addChild(owner);
-      }
-    }, 100);
+    this.registerMarkdownCodeBlockProcessor('mermaid', (source, element, context) => {
+      context.addChild(new InlineDiagram(element, source, true, () => this.openDiagram(source)));
+    }, -100);
   }
 }

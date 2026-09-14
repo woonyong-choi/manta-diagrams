@@ -35,3 +35,21 @@ test('closing while rendering cannot reinsert a stale diagram', async () => {
   await new Promise(resolve=>setTimeout(resolve,100));
   assert.equal(root.childElementCount,0); assert.equal(observing,0); root.remove();
 });
+test('ordinary note embeds use Manta, open the same source and follow the host theme', async () => {
+  const root = document.createElement('div'); document.body.append(root);
+  const source = 'erDiagram\nNOTE ||--o{ FILE : contains';
+  let opened = false;
+  const dispose = mountViewer(root,source,{sanitize,inline:true,open:()=>{opened=true;}});
+  await ready(root);
+  assert(root.querySelector('svg [data-node]'));
+  assert.equal(root.querySelector('code').textContent,source);
+  assert(root.querySelector('details').hidden);
+  [...root.querySelectorAll('button')].find(button=>button.textContent==='Open diagram').click();
+  assert(opened);
+  document.body.classList.add('theme-dark');
+  await new Promise(resolve=>setTimeout(resolve,10));
+  await ready(root);
+  assert.equal(root.dataset.theme,'dark');
+  dispose(); root.remove(); document.body.classList.remove('theme-dark');
+  assert.equal(observing,0);
+});

@@ -16,28 +16,51 @@ test('selects the exact complete fenced source around the cursor', () => {
   assert.equal(diagramAt('````text\n```mermaid\nA-->B\n```\n````', 2), null);
 });
 
-test('ordinary class declarations use the Manta palette while authored styles stay intact', async () => {
+test('ordinary diagrams use the same Manta renderer as explicit layouts', async () => {
+  for (const source of [
+    'flowchart LR\nA[원문] -->|보존| B[문서]',
+    'classDiagram\nclass Animal {\n +String name\n}\nclass Habitat\nAnimal --> Habitat : lives',
+    'erDiagram\nACCOUNT ||--o{ ENTRY : "1. 기록"\nENTRY }o..|| SOURCE : "2. 원문"\nACCOUNT {\n string id PK "식별자"\n}\nENTRY {\n string account_id FK "소유 계정"\n}',
+  ]) {
+    const result = await renderDocument(source, {id: 'ordinary-diagram'});
+    assert.equal(result.engine, 'Manta');
+    assert(result.svg.includes('data-node='));
+    if (result.type === 'er') {
+      assert.equal(result.model.direction, 'LR');
+      assert.deepEqual(result.model.edges.map(edge => [edge.label, edge.startMark, edge.endMark, edge.dashed]),
+        [['1. 기록', 'only_one', 'zero_or_more', false], ['2. 원문', 'zero_or_more', 'only_one', true]]);
+      assert.deepEqual(result.model.nodes.flatMap(node => node.fields || []).map(field => [field.type,field.name,field.keys,field.comment]),
+        [['string','id',['PK'],'식별자'],['string','account_id',['FK'],'소유 계정']]);
+      const vertical = await renderDocument(source.replace('erDiagram', 'erDiagram\ndirection TB'), {id:'explicit-direction'});
+      assert.equal(vertical.model.direction, 'TB');
+    }
+  }
+});
+
+test('authored styles and links remain with standard Mermaid and keep the exact source', async () => {
   const rendered = [];
   const stub = mock.method(mermaid, 'render', async (id, source) => {
     rendered.push(source);
     return {svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"></svg>'};
   });
   try {
-    for (const dark of [false, true]) {
-      const source = 'classDiagram\nclass Animal {\n +String name\n}\nclass Habitat\nAnimal --> Habitat : lives';
-      await renderDocument(source, {id: 'plain-class-' + dark, dark});
-      assert.equal(mermaid.mermaidAPI.getConfig().theme, 'base');
-      assert.equal(mermaid.mermaidAPI.getConfig().themeVariables.primaryTextColor, dark ? '#e6edf3' : '#1f2328');
-      assert.equal(rendered.at(-1), source);
-    }
     for (const source of [
       'classDiagram\nclass Animal\ncssClass "Animal" custom',
       'flowchart LR\nA-->B\nclass A custom',
       'classDiagram\nclass Animal\nstyle Animal fill:#abc',
+      'flowchart LR\nA-->B\nclick A "https://example.com"',
+      'flowchart LR\nA@{shape:cloud, label:"원문 보존"}',
     ]) {
-      await renderDocument(source, {id: 'authored-class', dark: true});
+      const result = await renderDocument(source, {id: 'authored-class', dark: true});
+      assert.equal(result.engine, 'Mermaid');
       assert.equal(mermaid.mermaidAPI.getConfig().theme, 'dark');
+      assert.equal(mermaid.mermaidAPI.getConfig().securityLevel, 'strict');
       assert.equal(rendered.at(-1), source);
     }
+    const source = 'pie\n "원문" : 2';
+    const result = await renderDocument(source, {id:'unsupported-layout'});
+    assert.equal(result.engine, 'Mermaid');
+    assert.equal(rendered.at(-1), source);
+    assert(result.notice.includes('standard Mermaid'));
   } finally {stub.mock.restore();}
 });

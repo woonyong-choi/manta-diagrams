@@ -21,7 +21,7 @@ export function diagramAt(text, line) {
   return null;
 }
 
-/** Ordinary Mermaid uses its own renderer; layout hints explicitly opt into Manta. */
+/** Share Manta's layout between the note body and viewer without rewriting source. */
 export function renderDocument(source, {id, dark = false, original = false} = {}) {
   const next = queue.catch(() => {}).then(async () => {
     if (typeof source !== 'string' || source.length > 50000) throw new Error('Use a diagram of at most 50,000 characters. Split larger diagrams into sections.');
@@ -31,7 +31,7 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
     const authoredFeatures = /^\s*(?:click\s|style\s|classDef\s|cssClass\s|linkStyle\s|---\s*$|%%\{)|:::|@\{/m.test(source)
       || (!classDiagram && /^\s*class\s/m.test(source));
     let fallback;
-    if (!original && !authoredFeatures && /^\s*%%\s*layout\s*:/m.test(source)) {
+    if (!original && !authoredFeatures) {
       try {
         const result = await render(source, {id});
         verify(result);
