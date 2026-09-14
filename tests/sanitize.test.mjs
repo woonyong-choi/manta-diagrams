@@ -39,6 +39,7 @@ test('normalized presentation survives a host that removes all CSS styles', () =
     const fragment = document.createRange().createContextualFragment(value);
     fragment.querySelectorAll('style').forEach(node=>node.remove());
     fragment.querySelectorAll('[style]').forEach(node=>node.removeAttribute('style'));
+    fragment.querySelectorAll('foreignObject').forEach(node=>node.replaceChildren());
     return fragment;
   };
   const svg = sanitizeSvg(source,{dark:true,hostSanitize}).querySelector('svg');
@@ -69,17 +70,18 @@ test('eventmodeling HTML labels retain bold, line breaks and centering across th
   };
   for(const dark of [false,true]) {
     const svg=sanitizeSvg(source,{dark,hostSanitize}).querySelector('svg');
-    const label=svg.querySelector('foreignObject');
-    assert.equal(label.querySelector('b').textContent,'장바구니');
-    assert.equal(label.querySelector('code').textContent,'item: UUID');
-    assert.equal(label.querySelectorAll('br').length,1);
-    assert.deepEqual(['x','y','width','height'].map(name=>label.getAttribute(name)),['260','25','120','80']);
-    assert.equal(label.querySelector('div').style.display,'table');
-    assert.equal(label.querySelector('span').style.verticalAlign,'middle');
-    assert.equal(label.querySelector('code').style.textAlign,'left');
+    const label=svg.querySelector('[data-event-label]'),rows=[...label.querySelectorAll('text')];
+    assert.equal(svg.querySelector('foreignObject'),null);
+    assert.equal(label.querySelector('tspan[font-weight="700"]').textContent,'장바구니');
+    assert.equal(label.querySelector('tspan[font-family="ui-monospace, monospace"]').textContent,'item: UUID');
+    assert.deepEqual(rows.map(row=>row.textContent),['장바구니','item: UUID']);
+    assert(Number(rows[1].getAttribute('y'))>Number(rows[0].getAttribute('y')));
+    assert.deepEqual(['x','y','width','height'].map(name=>label.getAttribute('data-'+name)),['260','25','120','80']);
+    assert.equal(rows[0].getAttribute('text-anchor'),'middle');
+    assert.equal(rows[1].getAttribute('text-anchor'),'start');
     assert.equal(svg.style.color,dark?'rgb(230, 237, 243)':'rgb(31, 35, 40)');
   }
   assert.throws(()=>sanitizeSvg(source,{hostSanitize:value=>{
-    const fragment=hostSanitize(value);fragment.querySelector('b').remove();return fragment;
+    const fragment=hostSanitize(value);fragment.querySelector('tspan').textContent='';return fragment;
   }}),/labels/);
 });
