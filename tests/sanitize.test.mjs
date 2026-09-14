@@ -51,6 +51,14 @@ test('normalized presentation survives a host that removes all CSS styles', () =
   }}),/required diagram attribute: fill/);
 });
 
+test('invalid Mermaid inline placeholders do not suppress stylesheet edge paint', () => {
+  const svg=sanitizeSvg('<svg id="mindmap"><style>#mindmap .edge{fill:none;stroke:#818b98;stroke-width:3}</style><path class="edge" style="undefined;;;undefined" d="M0 0L40 40"/></svg>').querySelector('svg');
+  const edge=svg.querySelector('path');
+  assert.equal(edge.getAttribute('fill'),'none');
+  assert.equal(edge.getAttribute('stroke'),'#818b98');
+  assert.equal(edge.getAttribute('stroke-width'),'3');
+});
+
 test('external styles and SVG resource URLs cannot load through the diagram', () => {
   for (const body of [
     '<style>@import "https://example.com/style.css";</style>',

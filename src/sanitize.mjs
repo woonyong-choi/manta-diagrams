@@ -77,6 +77,12 @@ export function sanitizeSvg(source, {dark = false, hostSanitize} = {}) {
     for (const match of css.matchAll(/url\s*\(([^)]*)\)/gi)) {
       if (!/^#[\w:.-]+$/.test(match[1].trim().replace(/^['"]|['"]$/g, ''))) throw new Error('External diagram assets are not loaded.');
     }
+    // Mermaid may emit invalid placeholders such as "undefined;;;undefined".
+    // Let the browser discard invalid declarations before SVGO resolves the cascade.
+    if(node.hasAttribute('style')) {
+      const valid=node.style.cssText;
+      if(valid)node.setAttribute('style',valid);else node.removeAttribute('style');
+    }
   }
   // Keep geometry/IDs intact. Inline CSS using its cascade, then express paint
   // as SVG attributes so Obsidian's HTML sanitizer need not retain styles.
