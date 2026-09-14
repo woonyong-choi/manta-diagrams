@@ -27,7 +27,9 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
     if (typeof source !== 'string' || source.length > 50000) throw new Error('Use a diagram of at most 50,000 characters. Split larger diagrams into sections.');
     if (!/^[a-zA-Z][\w-]*$/.test(id || '')) throw new Error('Invalid diagram identifier.');
     // Links, authored styling and directives must stay with Mermaid, not a partial model.
-    const authoredFeatures = /^\s*(?:click\s|style\s|classDef\s|linkStyle\s|class\s|---\s*$|%%\{)|:::|@\{/m.test(source);
+    const classDiagram = /^\s*classDiagram\b/m.test(source);
+    const authoredFeatures = /^\s*(?:click\s|style\s|classDef\s|cssClass\s|linkStyle\s|---\s*$|%%\{)|:::|@\{/m.test(source)
+      || (!classDiagram && /^\s*class\s/m.test(source));
     let fallback;
     if (!original && !authoredFeatures && /^\s*%%\s*layout\s*:/m.test(source)) {
       try {
@@ -41,7 +43,7 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
     mermaid.initialize({
       startOnLoad: false, securityLevel: 'strict', suppressErrorRendering: true,
       theme: original || authoredFeatures ? (dark ? 'dark' : 'neutral') : 'base',
-      ...(!original && !authoredFeatures ? {themeVariables:mermaidTheme(dark)} : {}),
+      ...(!original && !authoredFeatures ? {look: 'classic', themeVariables:mermaidTheme(dark)} : {}),
       htmlLabels: false, maxTextSize: 50000, maxEdges: 500,
       fontFamily: 'system-ui, sans-serif',
       flowchart: {htmlLabels: false, useMaxWidth: false, nodeSpacing: 36, rankSpacing: 56},
