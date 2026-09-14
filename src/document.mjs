@@ -1,6 +1,6 @@
 import mermaid from 'mermaid';
 import {render, verify} from './renderer.mjs';
-import {mermaidTheme} from './theme.mjs';
+import {mermaidTheme, palettes} from './theme.mjs';
 
 let queue = Promise.resolve();
 
@@ -40,6 +40,7 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
         fallback = error instanceof Error ? error.message : String(error);
       }
     }
+    const palette = palettes[dark ? 'dark' : 'light'];
     mermaid.initialize({
       startOnLoad: false, securityLevel: 'strict', suppressErrorRendering: true,
       theme: original || authoredFeatures ? (dark ? 'dark' : 'neutral') : 'base',
@@ -48,6 +49,9 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
       fontFamily: 'system-ui, sans-serif',
       flowchart: {htmlLabels: false, useMaxWidth: false, nodeSpacing: 36, rankSpacing: 56},
       sequence: {useMaxWidth:false, actorMargin:42, width:130, diagramMarginX:24, diagramMarginY:24, mirrorActors:false},
+      railroad: {terminalFill:palette.surface,terminalStroke:palette.border,terminalTextColor:palette.ink,
+        nonTerminalFill:palette.paper,nonTerminalStroke:palette.border,nonTerminalTextColor:palette.ink,
+        lineColor:palette.muted,markerFill:palette.muted,strokeWidth:1.25,fontSize:14},
     });
     const result = await mermaid.render(id, source);
     // Mermaid may include HTML entities or xlink attributes; parse like the host DOM.
