@@ -64,14 +64,17 @@ for p, count in zip(outputs[:2], [360, 150]):
                           '-of', 'json', str(p)))
     stream = probe['streams'][0]
     assert int(stream['nb_read_frames']) == count and float(probe['format']['duration']) == 6, 'Unexpected frame count or duration'
-    corner = run('ffmpeg', '-v', 'error', '-i', str(p), '-vf', 'format=rgb24,crop=20:20:0:0', '-f', 'rawvideo', '-')
-    assert len(corner) == count * 20 * 20 * 3 and corner == bytes(paper) * (len(corner) // 3), 'Paper color changed during encoding'
+    corner = run('ffmpeg', '-v', 'error', '-i', str(p), '-vf', 'format=rgb24,crop=iw:20:0:0', '-f', 'rawvideo', '-')
+    assert len(corner) == count * stream['width'] * 20 * 3 and corner == bytes(paper) * (len(corner) // 3), 'Paper color changed during encoding'
     boundary = run('ffmpeg', '-v', 'error', '-i', str(p), '-vf', f'select=eq(n\\,0)+eq(n\\,{count-1}),format=rgb24',
                    '-fps_mode', 'passthrough', '-f', 'rawvideo', '-')
     assert len(boundary) == stream['width'] * stream['height'] * 3 * 2, 'Missing boundary frame'
     assert boundary[:len(boundary)//2] == boundary[len(boundary)//2:], 'Loop boundary changed'
+    if p.suffix == '.gif':
+        assert b'NETSCAPE2.0\x03\x01\x00\x00\x00' in p.read_bytes(), 'GIF must loop indefinitely'
     receipt['outputs'].append({'file': p.name, 'bytes': p.stat().st_size, 'sha256': sha(p), **probe,
                                'decoded_background_rgb': paper, 'background_unique_colors': 1,
+                               'background_region': [0, 0, stream['width'], 20],
                                'background_frames_checked': count, 'first_last_pixels_equal': True})
 outputs[2].write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt, indent=2))

@@ -23,7 +23,7 @@ Repeat for `calendar`, `graph`, `code-blocks`, `diagrams` and their `-dark` vari
 
 To rebuild one product's light and dark compositions, pass the sibling workspace and product slug: `npm run media:prepare -- .. diagrams`. This leaves the other products' generated compositions unchanged.
 
-For Diagrams, capture lossless PNG frames and encode the GIF directly from those RGB frames. The previous MP4 path converted to limited-range YUV; deriving the GIF from that lossy video added palette and dithering changes. The shared renderer's colors are unchanged. The MP4 is now a lossless RGB editing master, with playback compatibility checked separately from color accuracy. The README uses the GIF.
+For Diagrams, capture lossless PNG frames and encode the GIF directly from those RGB frames. The previous MP4 path converted to limited-range YUV; deriving the GIF from that lossy video added palette and dithering changes. HyperFrames removes the root background for alpha-capable PNG export, so the encoder composites the original paper color behind the RGBA frames. The shared renderer's colors are unchanged. The MP4 is now a lossless RGB editing master, with playback compatibility checked separately from color accuracy. The README uses the GIF.
 
 ```sh
 npm run media:prepare -- .. diagrams
