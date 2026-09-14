@@ -30,14 +30,17 @@ if any(p.exists() for p in outputs):
 args.output.parent.mkdir(parents=True, exist_ok=True)
 paper = (255, 255, 255) if args.theme == 'light' else (13, 17, 23)
 ffmpeg = ['ffmpeg', '-v', 'error', '-n', '-framerate', '60', '-start_number', '1', '-i', str(args.frames / 'frame_%06d.png')]
+# HyperFrames' alpha-capable PNG export removes the composition root background.
+# Restore that original canvas behind the RGBA frames before either encoding.
+paper_hex = ''.join(f'{channel:02x}' for channel in paper)
+matte = f'color=c=0x{paper_hex}:s=1600x900:r=60:d=6,format=rgba[paper];[paper][0:v]overlay=format=rgb:shortest=1,format=rgb24'
 # The MP4 is an RGB lossless editing master; README playback uses the GIF.
-run(*ffmpeg, '-c:v', 'libx264rgb', '-crf', '0', '-preset', 'medium',
+run(*ffmpeg, '-filter_complex', matte, '-c:v', 'libx264rgb', '-crf', '0', '-preset', 'medium',
     '-pix_fmt', 'rgb24', '-color_range', 'pc', '-colorspace', 'rgb',
     '-color_primaries', 'bt709', '-color_trc', 'iec61966-2-1', '-movflags', '+faststart', str(outputs[0]))
 # Quantize the original RGB frames, not a lossy MP4. A full histogram retains
 # the static paper color; no dithering is needed on these flat UI surfaces.
-run(*ffmpeg, '-filter_complex',
-    'fps=25,scale=1200:-1:flags=lanczos,format=rgb24,split[a][b];'
+run(*ffmpeg, '-filter_complex', matte + ',fps=25,scale=1200:-1:flags=lanczos,format=rgb24,split[a][b];'
     '[a]palettegen=stats_mode=full:reserve_transparent=0[p];[b][p]paletteuse=dither=none',
     '-loop', '0', str(outputs[1]))
 
@@ -48,7 +51,8 @@ receipt = {
     'inputs_sha256': {str(p.relative_to(args.composition)): sha(p) for p in sorted(args.composition.rglob('*'))
                      if p.is_file() and (p.parent.name == 'assets' or p.name in ['index.html', 'index.motion.json', 'inputs.json'])},
     'input_sequence_sha256': hashlib.sha256(''.join(f'{p.name} {sha(p)}\n' for p in frames).encode()).hexdigest(),
-    'encoding': {'mp4': 'libx264rgb CRF 0, full-range RGB, sRGB transfer; editing master',
+    'encoding': {'alpha_composite_rgb': paper,
+                 'mp4': 'libx264rgb CRF 0, full-range RGB, sRGB transfer; editing master',
                  'gif': 'PNG RGB -> 25fps/1200px -> full histogram palette -> no dither; infinite loop'},
     'validation': {'native_recording': False, 'browser_playback_verified': False,
                    'source_background_rgb': paper, 'input_frames': 360},
