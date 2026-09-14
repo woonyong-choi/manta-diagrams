@@ -59,6 +59,7 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
         themeCSS: /^\s*mindmap\b/m.test(source) ? `
           .mindmap-node rect,.mindmap-node path,.mindmap-node circle,.mindmap-node polygon {fill:${palette.surface}!important;stroke:${palette.border}!important;}
           .mindmap-node text {fill:${palette.ink}!important;}
+          .mindmap-node > .basic ~ .label text {text-anchor:middle!important;}
           .edge {stroke:${palette.muted}!important;}
         ` : '',
       } : {}),

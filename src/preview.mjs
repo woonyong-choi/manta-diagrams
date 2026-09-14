@@ -150,7 +150,8 @@ el('run-checks').addEventListener('click',async()=>{
       measure.style.color=palettes[theme].muted;
       const expected=getComputedStyle(measure).color;
       const edges=[...measure.querySelectorAll('path.edge')].map(edge=>({stroke:getComputedStyle(edge).stroke,fill:getComputedStyle(edge).fill,width:parseFloat(getComputedStyle(edge).strokeWidth)}));
-      themeChecks.push({name:'mindmap-'+theme,ok:edges.length===2&&edges.every(edge=>edge.stroke===expected&&edge.fill==='none'&&edge.width>0),edges,expected});
+      const label=measure.querySelector('.section-root text'),box=label.getBBox(),center=box.x+box.width/2;
+      themeChecks.push({name:'mindmap-'+theme,ok:edges.length===2&&edges.every(edge=>edge.stroke===expected&&edge.fill==='none'&&edge.width>0)&&Math.abs(center)<1,edges,expected,center});
       measure.style.removeProperty('color');
     }catch(error){themeChecks.push({name:'mindmap-'+theme,ok:false,error:error.message});}
   }measure.replaceChildren();
