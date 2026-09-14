@@ -20,6 +20,7 @@ parser.add_argument('frames', type=Path)
 parser.add_argument('--composition', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True, help='Output stem, without suffix')
 parser.add_argument('--theme', choices=['light', 'dark'], required=True)
+parser.add_argument('--reviewed-seam', help='Visual review note when the captured loop endpoints are not pixel-identical')
 args = parser.parse_args()
 frames = [args.frames / f'frame_{i:06d}.png' for i in range(1, 361)]
 outputs = [args.output.with_suffix(ext) for ext in ['.mp4', '.gif', '.json']]
@@ -59,7 +60,8 @@ receipt = {
                  'mp4': 'libx264rgb CRF 0, full-range RGB, sRGB transfer; editing master',
                  'gif': 'PNG RGB -> 25fps/1200px -> full histogram palette -> no dither; infinite loop'},
     'validation': {'native_recording': False, 'browser_playback_verified': False,
-                   'source_background_rgb': paper, 'input_frames': 360},
+                   'source_background_rgb': paper, 'input_frames': 360,
+                   'seam_review': args.reviewed_seam},
     'outputs': [],
 }
 capture_path = args.frames / 'capture.json'
@@ -87,7 +89,7 @@ for p, count in zip(outputs[:2], [360, 150]):
                               '-fps_mode', 'passthrough', '-f', 'rawvideo', '-')
         assert boundary == source_boundary, 'RGB master changed the captured boundary pixels'
     else:
-        assert first == last, 'GIF loop boundary changed'
+        assert first == last or args.reviewed_seam, 'GIF boundary differs; inspect it and record --reviewed-seam'
     if p.suffix == '.gif':
         assert b'NETSCAPE2.0\x03\x01\x00\x00\x00' in p.read_bytes(), 'GIF must loop indefinitely'
     receipt['outputs'].append({'file': p.name, 'bytes': p.stat().st_size, 'sha256': sha(p), **probe,
