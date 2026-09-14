@@ -1,0 +1,48 @@
+{
+  "hyperframes": "0.8.38",
+  "source_sha256": "f468df7f58e0d01f3657283bfa865c6d529dc84a4c7b197aebd7fdefd5c06b15",
+  "inputs_sha256": {
+    "index.html": "f468df7f58e0d01f3657283bfa865c6d529dc84a4c7b197aebd7fdefd5c06b15",
+    "assets/gsap.min.js": "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280",
+    "assets/screen1.svg": "65085f1aa805b9c4f23d266c4e57b1bf6c90f32e0d9d5f7896387d702f14aad1",
+    "assets/screen2.svg": "559a0a6354c88146038ff0be5c1f9ff5e69c3e7529e77047ca9e744401365dc5",
+    "index.motion.json": "a0c0c713457bb555b220856ba3218841220b0507dcb16748aa6e5638c65a2be9",
+    "inputs.json": "4b15e9f072f014c035a78bc16cd857464c1ec590d141a69492858e9534871533"
+  },
+  "outputs": [
+    {
+      "file": "manta-diagrams-intro.mp4",
+      "bytes": 1623071,
+      "sha256": "7f79610ffc8d4b5a4aa1378311e47e5f42824c6475a8e4ded166eb6413dc581d",
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "width": 1600,
+          "height": 900,
+          "avg_frame_rate": "60/1"
+        }
+      ],
+      "format": {
+        "duration": "10.000000"
+      }
+    },
+    {
+      "file": "manta-diagrams-intro.gif",
+      "bytes": 4477601,
+      "sha256": "8b1c1b5a14544ece277c42ba9ba4a30ffbf4451bfa2fedbb6f92e5800ca06ef2",
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "width": 1200,
+          "height": 675,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "format": {
+        "duration": "10.000000"
+      }
+    }
+  ]
+}

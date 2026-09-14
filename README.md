@@ -4,13 +4,15 @@
 
 Read Mermaid diagrams in a focused viewer. Make room for long labels, follow a connection and save an SVG without changing the source note.
 
-**[Try your Mermaid](https://woonyong-choi.github.io/manta-diagrams/try/) · [Get the plugin](https://github.com/woonyong-choi/manta-diagrams/releases) · [User guide](docs/user-guide.md)**
+**[Try your Mermaid](https://woonyong-choi.github.io/manta-diagrams/try/) · [User guide](docs/user-guide.md)**
 
-Version **0.1.0** · Obsidian **1.13.0+** · Desktop. Community submission is in preparation; this is the first release.
+Version **0.1.0** · Obsidian **1.13.0+** · Desktop. Release candidate. Obsidian runtime verification and Community submission are in progress.
 
 ## Start with a diagram
 
-1. Install `main.js`, `manifest.json` and `styles.css` from the release into `.obsidian/plugins/manta-diagrams/`. Enable **Manta Diagrams** in Community plugins.
+The browser demo is available now. The Obsidian release is still being checked. For a local development build:
+
+1. Run the development commands below, then copy `main.js`, `manifest.json` and `styles.css` into `.obsidian/plugins/manta-diagrams/`. Enable **Manta Diagrams** in a test vault’s Community plugins.
 2. Keep a normal Mermaid block in your note. Put the cursor inside it.
 3. Run **Manta Diagrams: Open diagram under cursor**. Use **Fit**, **Reading size**, drag or zoom to inspect it. **Save SVG** exports the full diagram.
 

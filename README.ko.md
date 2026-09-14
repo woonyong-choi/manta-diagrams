@@ -4,11 +4,11 @@
 
 Mermaid 도해를 넓은 화면에서 읽고, 연결선을 따라 이동하고, SVG로 저장합니다. 원본 노트는 그대로 둡니다.
 
-**[직접 써보기](https://woonyong-choi.github.io/manta-diagrams/try/) · [플러그인 받기](https://github.com/woonyong-choi/manta-diagrams/releases) · [사용 안내](docs/user-guide.md)**
+**[직접 써보기](https://woonyong-choi.github.io/manta-diagrams/try/) · [사용 안내](docs/user-guide.md)**
 
-**0.1.0** · Obsidian **1.13.0 이상** · 데스크톱. 첫 배포 버전이며 Community 등록을 준비 중입니다.
+**0.1.0 배포 후보** · Obsidian **1.13.0 이상** · 데스크톱. 브라우저 데모를 먼저 공개하며, Obsidian 실행 검증과 Community 등록을 준비 중입니다.
 
-1. 릴리스의 `main.js`, `manifest.json`, `styles.css`를 `.obsidian/plugins/manta-diagrams/`에 넣고 Manta Diagrams를 활성화합니다.
+1. [개발 안내](README.md#development)에 따라 빌드한 `main.js`, `manifest.json`, `styles.css`를 시험 Vault의 `.obsidian/plugins/manta-diagrams/`에 넣고 Manta Diagrams를 활성화합니다.
 2. 노트의 Mermaid 블록 안에 커서를 둡니다.
 3. 명령 팔레트에서 **Manta Diagrams: Open diagram under cursor**를 실행합니다. 전체 보기, 읽기 크기, 이동·확대와 SVG 저장을 사용할 수 있습니다.
 
