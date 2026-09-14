@@ -1,5 +1,6 @@
 import mermaid from 'mermaid';
 import {render, verify} from './renderer.mjs';
+import {mermaidTheme} from './theme.mjs';
 
 let queue = Promise.resolve();
 
@@ -39,9 +40,12 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
     }
     mermaid.initialize({
       startOnLoad: false, securityLevel: 'strict', suppressErrorRendering: true,
-      theme: dark ? 'dark' : 'neutral', htmlLabels: false, maxTextSize: 50000, maxEdges: 500,
+      theme: original || authoredFeatures ? (dark ? 'dark' : 'neutral') : 'base',
+      ...(!original && !authoredFeatures ? {themeVariables:mermaidTheme(dark)} : {}),
+      htmlLabels: false, maxTextSize: 50000, maxEdges: 500,
       fontFamily: 'system-ui, sans-serif',
       flowchart: {htmlLabels: false, useMaxWidth: false, nodeSpacing: 36, rankSpacing: 56},
+      sequence: {useMaxWidth:false, actorMargin:42, width:130, diagramMarginX:24, diagramMarginY:24, mirrorActors:false},
     });
     const result = await mermaid.render(id, source);
     // Mermaid may include HTML entities or xlink attributes; parse like the host DOM.

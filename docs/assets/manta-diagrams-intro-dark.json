@@ -1,8 +1,8 @@
 {
   "hyperframes": "0.8.38",
-  "source_sha256": "0893f5f937c4a5994510aec6881e2d1f40e0ed433fd1bf9790cb54aae17d933f",
+  "source_sha256": "b2f97d7a542727f08df161a01c829299507dcef1b9fc590b1eb3fa05cacd2104",
   "inputs_sha256": {
-    "index.html": "0893f5f937c4a5994510aec6881e2d1f40e0ed433fd1bf9790cb54aae17d933f",
+    "index.html": "b2f97d7a542727f08df161a01c829299507dcef1b9fc590b1eb3fa05cacd2104",
     "assets/action.js": "740288a64a61fbcb3d3b85ef34ca14f72e6c62b096787eff09a7ec638a531977",
     "assets/gsap.min.js": "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280",
     "assets/product.css": "338df49a701657e013257b7f1229c856bfb0b86cf2a0833e56ea8f8263505e2c",
@@ -11,9 +11,9 @@
   },
   "outputs": [
     {
-      "file": "manta-diagrams-intro.mp4",
-      "bytes": 207503,
-      "sha256": "e4a31f8f9cae24ca6606703c1f6e76520bc75edabf8df19d2811975964ba7fed",
+      "file": "manta-diagrams-intro-dark.mp4",
+      "bytes": 200674,
+      "sha256": "adf1488c1d29f99bcca15b1461ab6d78328635b1497de62d91c8d4cd9496b649",
       "programs": [],
       "stream_groups": [],
       "streams": [
@@ -28,9 +28,9 @@
       }
     },
     {
-      "file": "manta-diagrams-intro.gif",
-      "bytes": 596639,
-      "sha256": "e70239b4ff689ee5ad326c0a9482565e59bf64c3184ccebeecc28b28ed61d71f",
+      "file": "manta-diagrams-intro-dark.gif",
+      "bytes": 449701,
+      "sha256": "b4a8fcec74f09c33339e1f09d71d7585f239e6f2ec317ee64c8cee998b06db39",
       "programs": [],
       "stream_groups": [],
       "streams": [

@@ -1,5 +1,5 @@
 .manta-diagrams-modal{width:min(1200px,94vw);max-width:94vw}
-.manta-reader{color:var(--text-normal,#292e37);background:var(--background-primary,#f6f7f8);border-radius:8px;padding:12px;min-width:0;box-sizing:border-box}
+.manta-reader{color:var(--md-ink);background:var(--md-paper);border-radius:8px;padding:12px;min-width:0;box-sizing:border-box}
 .manta-reader-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .manta-reader-tools button,.manta-open-diagram{font:inherit;font-size:12px;min-height:32px;border:1px solid var(--background-modifier-border,#bfc5cf);border-radius:5px;background:var(--background-secondary,#e9edf1);color:inherit;padding:4px 10px;cursor:pointer}
 .manta-reader-tools button:focus-visible,.manta-reader-stage:focus-visible,.manta-open-diagram:focus-visible{outline:2px solid var(--interactive-accent,#ba522c);outline-offset:3px}

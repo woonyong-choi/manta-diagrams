@@ -1,17 +1,24 @@
-# Product introductions
+# README loops
 
-The four introductions share [one HTML composition](intro.html) and [reviewed product copy and capture hashes](products.json). HyperFrames 0.8.38 renders a 1600 × 900, 60fps MP4. FFmpeg derives a 1200 × 675, 25fps GIF with uniform frame timing.
+Each product has a six-second, cursor-free loop in its own README. GIFs autoplay and repeat without a player. Light and dark variants match the published Wiki code-block backgrounds (`#ffffff` and `#0d1117`). The MP4 files are editing masters, not the primary README presentation.
 
-Calendar, Graph and Code Blocks use actual public sample captures from the recorded versions. The camera and transitions are presentation edits, not measured application animation. Diagrams uses output from the same renderer as the plugin. No UI actions or successful saves are fabricated.
+[The composition](intro.html) uses the production code imported by [the four media fixtures](runtime/):
 
-Keep the four repositories beside one another, install this repository’s dependencies, then run:
+- Calendar selects real date cells and renders their agendas.
+- Graph reads sample Markdown links, previews neighbours, opens the next note and returns to an outline. Physics samples are condensed in time.
+- Code Blocks edits its CodeMirror editor and runs the real JavaScript Web Worker. Output is captured only after the worker returns the expected result.
+- Diagrams renders the same source as a flowchart and a loop, verifying every node and connection.
+
+Calendar and Graph replace only the Obsidian host boundary. These are production-view fixtures with public sample data, not recordings of Obsidian. No note writes, remote execution or Google authentication are demonstrated. The original native captures remain linked in each product README.
+
+Keep all four repositories beside one another, install their dependencies, then run:
 
 ```sh
 npm run media:prepare
-DO_NOT_TRACK=1 HYPERFRAMES_NO_TELEMETRY=1 npx --yes hyperframes@0.8.38 check .local/intros/diagrams --snapshots
-DO_NOT_TRACK=1 HYPERFRAMES_NO_TELEMETRY=1 npx --yes hyperframes@0.8.38 render .local/intros/diagrams --fps 60 --quality delivery --workers 2 --output .local/diagrams.mp4
+DO_NOT_TRACK=1 HYPERFRAMES_NO_TELEMETRY=1 npx --yes hyperframes@0.8.38 check .local/loops/diagrams --snapshots
+DO_NOT_TRACK=1 HYPERFRAMES_NO_TELEMETRY=1 npx --yes hyperframes@0.8.38 render .local/loops/diagrams --fps 60 --quality delivery --workers 2 --output .local/diagrams.mp4
 ```
 
-The Woon `demo-video` skill adds output checks and a hash receipt. Source clips and input hashes remain under `.local/intros/`; finished assets and portable receipts live in each product’s `docs/assets/` directory. Inspect the start, transition, middle and end of each render, then watch the actual MP4. Generated files in `.local/` are not published.
+Repeat for `calendar`, `graph`, `code-blocks`, `diagrams` and their `-dark` variants. The Woon `demo-video` skill adds GIF encoding, output inspection and SHA-256 receipts. Each composition returns to its exact opening state at 5.6 seconds; the GIF loop count is zero (infinite). Production screen-reader labels and closed diagnostic details have no visible pixels and are omitted from replayed frames. Font size, host icons and framing are presentation choices.
 
-GSAP’s distribution retains its own [license and copyright](assets/gsap-license.txt); it is used only to author the introductions. HyperFrames is an external build tool, not bundled into the Obsidian plugin.
+This directory contains video sources, not a public website. Generated `.local/` compositions are not deployed. GSAP retains its own [license](assets/gsap-license.txt); HyperFrames is a build tool and is not bundled with the plugin.

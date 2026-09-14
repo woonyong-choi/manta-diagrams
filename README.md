@@ -4,13 +4,13 @@
 
 Read Mermaid diagrams in a focused viewer. Make room for long labels, follow a connection and save an SVG without changing the source note.
 
-**[Try your Mermaid](https://woonyong-choi.github.io/manta-diagrams/try/) · [User guide](docs/user-guide.md)**
+**[User guide](docs/user-guide.md) · [Roadmap](ROADMAP.md)**
 
 Version **0.1.0** · Obsidian **1.13.0+** · Desktop. Release candidate. Obsidian runtime verification and Community submission are in progress.
 
 ## Start with a diagram
 
-The browser demo is available now. The Obsidian release is still being checked. For a local development build:
+The Obsidian release is still being checked. For a local development build:
 
 1. Run the development commands below, then copy `main.js`, `manifest.json` and `styles.css` into `.obsidian/plugins/manta-diagrams/`. Enable **Manta Diagrams** in a test vault’s Community plugins.
 2. Keep a normal Mermaid block in your note. Put the cursor inside it.
@@ -26,9 +26,12 @@ flowchart LR
 
 The original Mermaid block keeps Obsidian’s renderer. Manta adds a viewer button when the rendered block can be mapped back to its source. The command also accepts a selected diagram.
 
-![Manta Diagrams introduction](docs/assets/manta-diagrams-intro.gif)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">
+  <img src="docs/assets/manta-diagrams-intro.gif" alt="Manta Diagrams: switch between a flowchart and a loop while keeping the same source" width="1200">
+</picture>
 
-[Watch the 60fps introduction](docs/assets/manta-diagrams-intro.mp4). This is an animated presentation of actual Manta renderer output, not a recording of mouse interactions.
+A six-second loop of the actual renderer: the source keeps the same nodes and connections while the layout changes. Timing is condensed.
 
 ## Choose a layout when it helps
 
@@ -42,7 +45,7 @@ Everything runs locally. The plugin does not write notes, call an AI service or 
 
 Use [Manta Graph](https://github.com/woonyong-choi/manta-graph) to follow the supporting notes, [Manta Code Blocks](https://github.com/woonyong-choi/manta-code-blocks) to try the example and [Manta Calendar](https://github.com/woonyong-choi/manta-calendar) to return to a dated review. Each plugin works on its own; notes and links connect the work today.
 
-**Manta itself is in development and has not been released.** I’m building it to turn source material into a personal wiki you can keep adding to. Shared AI tools and automatic handoffs between the four plugins are planned. [Meet the Manta family](https://woonyong-choi.github.io/manta-diagrams/manta/) · [Roadmap](ROADMAP.md)
+**Manta itself is in development and has not been released.** I’m building it to turn source material into a personal wiki you can keep adding to. Shared AI tools and automatic handoffs between the four plugins are planned. [Roadmap](ROADMAP.md)
 
 ## Development
 
@@ -51,9 +54,8 @@ npm ci --ignore-scripts
 npm test
 npm run build
 npm run verify:release
-npm run build:site
 ```
 
-The Obsidian plugin and browser demo use the same viewer and rendering adapter. Special layout tests cover 31 basic, 31 complex and 31 error cases, plus 10 legacy aliases. Automated checks do not establish visual quality for every possible Mermaid input. [Renderer details](docs/renderer.md) · [Demo source](demo/README.md)
+The viewer preserves the note source and shares its renderer with the media fixtures. Special layout tests cover 31 basic, 31 complex and 31 error cases, plus 10 legacy aliases. Automated checks do not establish visual quality for every possible Mermaid input. [Renderer details](docs/renderer.md) · [Demo source](demo/README.md)
 
 [Report a problem](https://github.com/woonyong-choi/manta-diagrams/issues) · [MIT](LICENSE) · [Third-party notices](docs/third-party-notices.txt)

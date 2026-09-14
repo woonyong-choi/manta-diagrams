@@ -15,11 +15,11 @@ These AI interfaces are planned. They are not currently bundled as a four-tool M
 
 ## A shared design
 
-Use the host’s font and neutral surfaces, one accent for the current action, consistent spacing and visible keyboard focus. Status words should mean the same thing across the four tools: ready, running, completed, cancelled, failed and result unknown.
+Use the published Wiki code-block background across all four plugins: light `#ffffff`, dark `#0d1117`. Keep host typography, semantic text colours, one accent for the current action, consistent spacing and visible keyboard focus. Status words should mean the same thing across the four tools: ready, running, completed, cancelled, failed and result unknown.
 
 Keep ordinary Markdown as the durable content. A missing plugin must leave a readable note. Optional integration should pass an existing note path and selection, with a clear return route. Avoid automatic installs, invented dates or links, and background code execution.
 
-The new introduction pages and videos use one visual system. The plugin interfaces will adopt it incrementally after each feature passes its existing checks.
+The README introductions and videos use one visual system. The plugin interfaces will adopt it incrementally after each feature passes its existing checks.
 
 ## A release bar that can be checked
 

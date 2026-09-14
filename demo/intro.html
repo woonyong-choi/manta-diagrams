@@ -1,30 +1,19 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>__NAME__ introduction</title><style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,sans-serif;color:#25332f;background:#f8f7f3}
-#manta-intro{position:relative;width:100%;height:100%;overflow:hidden;background:#f8f7f3}
-.top{position:absolute;left:68px;top:42px;width:1464px;height:58px;border-bottom:1px solid #d5d9d1;display:flex;align-items:flex-start;justify-content:space-between;font-size:22px;letter-spacing:-.5px}.brand{font-weight:650}.category{font-size:16px;color:#5c6960;padding-top:3px}
-.words{position:absolute;left:68px;top:206px;width:365px}.eyebrow{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:#617066;margin:0 0 28px}h1{font-size:61px;line-height:1.07;letter-spacing:-3px;font-weight:580;margin:0;white-space:pre-line}.detail{position:absolute;left:68px;top:506px;width:350px;height:100px;font-size:23px;line-height:1.45;color:#4f6354}.detail p{position:absolute;inset:0;margin:0}.screen{position:absolute;left:464px;top:163px;width:1068px;height:601px;overflow:hidden;border-radius:8px;border:1px solid #aab2aa;background:#f5f5f5;box-shadow:0 18px 44px #283b2a15}.screen img{position:absolute;width:100%;height:100%;object-fit:contain;transform-origin:center;display:block}.bottom{position:absolute;left:68px;top:826px;width:1464px;height:38px;border-top:1px solid #d5d9d1;padding-top:15px;display:flex;justify-content:space-between;font-size:14px;color:#56665b}.progress{position:absolute;left:464px;top:783px;width:1068px;height:3px;background:#dfe3db}.progress span{display:block;width:100%;height:100%;background:#b55330;transform-origin:left}
+<!doctype html><html lang="en" class="__THEME__"><head><meta charset="utf-8"><title>__NAME__ · six second loop</title>
+<link rel="stylesheet" href="assets/product.css"><style>
+__HOST_CSS__
+*{box-sizing:border-box;cursor:none!important;caret-color:transparent!important}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,sans-serif;color:var(--text-normal);background:var(--background-primary)}
+#manta-intro{position:relative;width:100%;height:100%;overflow:hidden;background:var(--background-primary)}
+.top{position:absolute;left:64px;top:42px;width:1472px;height:57px;border-bottom:1px solid var(--divider-color);display:flex;justify-content:space-between;font-size:23px}.brand{font-weight:650}.category{font-size:16px;color:var(--text-muted);padding-top:4px}
+.words{position:absolute;left:64px;top:214px;width:315px}.eyebrow{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin:0 0 24px}h1{font-size:54px;line-height:1.1;letter-spacing:-2.4px;font-weight:600;margin:0;white-space:pre-line}.details{position:absolute;left:64px;top:468px;width:300px;height:125px;font-size:22px;line-height:1.45;color:var(--text-muted)}.caption{position:absolute;inset:0;margin:0}
+.screen{position:absolute;left:410px;top:152px;width:1126px;height:650px;overflow:hidden;border:1px solid var(--divider-color);border-radius:9px;background:var(--background-primary);box-shadow:0 18px 44px #0000000a}.shot{position:absolute;inset:0;overflow:hidden}.runtime{height:100%;width:100%;background:var(--background-primary);overflow:hidden}.workspace-leaf-content .view-content{height:100%;margin:0}.bottom{position:absolute;left:64px;top:845px;width:1472px;border-top:1px solid var(--divider-color);padding-top:12px;display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted)}
+button,input,select{font:inherit;color:inherit}button{background:transparent;border:none}svg.svg-icon{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7}.clickable-icon{display:inline-flex;padding:6px}
+.code-runtime{padding:32px 22px;width:80%;height:80%;transform:scale(1.25);transform-origin:top left}.code-runtime .rcb{margin:0}.code-runtime .rcb__editor{font-size:20px}.code-runtime .cm-cursorLayer,.code-runtime .cm-selectionLayer{display:none}.code-runtime .rcb__output{font-size:23px}.diagram-runtime{display:grid;grid-template-columns:360px 1fr}.diagram-source{margin:0;padding:20px 26px;font:15px/1.5 ui-monospace,monospace;white-space:pre-wrap;color:var(--text-muted);border-right:1px solid var(--divider-color)}.diagram-output{padding:24px;min-height:0;overflow:hidden}.diagram-output svg{display:block}
+/* Replayed states contain the product's DOM; motion is driven only by the film timeline. */
+.shot *{animation:none!important;transition:none!important}
 </style><script src="assets/gsap.min.js"></script></head><body>
-<div id="manta-intro" data-composition-id="manta-intro" data-width="1600" data-height="900" data-duration="10">
-<div class="top"><span class="brand">__NAME__</span><span class="category">Tools for thoughtful notes</span></div>
-<div class="words"><p class="eyebrow">For Obsidian</p><h1>__TITLE__</h1></div>
-<div class="detail"><p id="detail1" data-layout-allow-overlap>__FIRST__</p><p id="detail2" data-layout-allow-overlap>__SECOND__</p></div>
-<div class="screen"><img id="screen1" data-layout-allow-overflow src="assets/screen1.__EXT__" alt="__FIRST__"><img id="screen2" data-layout-allow-overflow src="assets/screen2.__EXT__" alt="__SECOND__"></div>
-<div class="progress" aria-hidden="true"><span></span></div><div class="bottom"><span>__CAPTURE__</span><span>manta · explain / explore / try / revisit</span></div>
-</div><script>
-const timeline=gsap.timeline({paused:true});
-// The small camera move deliberately clips only the outer capture edge.
-timeline.set('#detail1',{opacity:1},0);
-gsap.set('#detail2',{y:10,opacity:0});
-gsap.set('#screen2',{scale:1.035,opacity:0});
-timeline.fromTo('#screen1',{scale:1,opacity:1},{scale:1.035,opacity:1,duration:4.5,ease:'sine.inOut'},0);
-timeline.to('#screen2',{opacity:1,duration:.55,ease:'sine.inOut'},4.4);
-timeline.to('#detail1',{opacity:0,duration:.25},4.25);
-timeline.to('#detail2',{y:0,opacity:1,duration:.5},4.55);
-timeline.to('#screen2',{scale:1,duration:4.3,ease:'sine.inOut'},4.95);
-timeline.to('#screen1',{scale:1,duration:.6,ease:'sine.inOut'},9.3);
-timeline.to('#screen2',{opacity:0,duration:.55},9.45);
-timeline.to('#detail2',{opacity:0,duration:.3},9.3);
-timeline.to('#detail1',{opacity:1,duration:.4},9.6);
-timeline.fromTo('.progress span',{scaleX:0},{scaleX:1,duration:10,ease:'none'},0);
-window.__timelines={'manta-intro':timeline};
-</script></body></html>
+<div id="manta-intro" data-composition-id="manta-intro" data-width="1600" data-height="900" data-duration="6">
+<div class="top"><span class="brand">__NAME__</span><span class="category">For the notes you come back to</span></div>
+<div class="words"><p class="eyebrow">For Obsidian</p><h1>__TITLE__</h1></div><div class="details"></div>
+<div class="screen"><div id="runtime" class="runtime"></div></div>
+<div class="bottom"><span>__PROVENANCE__ · Sample notes · Timing condensed</span><span>Manta · Diagrams / Graph / Code Blocks / Calendar</span></div>
+</div><script>window.__timelines = {};</script><script type="module" src="assets/action.js"></script></body></html>

@@ -1,4 +1,5 @@
 import {assert} from './parse.mjs';
+import {palettes} from './theme.mjs';
 
 export const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 export const num = n => {assert(Number.isFinite(n),'그림 좌표가 유효하지 않습니다.');return Math.round(n*1000)/1000;};
@@ -67,7 +68,7 @@ export function frame(body,width,height,type,id='md',title='') {
   return `<svg xmlns="http://www.w3.org/2000/svg" class="md-diagram" data-type="${esc(type)}" width="${num(width)}" height="${num(height)}" viewBox="0 0 ${num(width)} ${num(height)}" role="img" aria-labelledby="${id}-title ${id}-desc"><title id="${id}-title">${esc(title||type)}</title><desc id="${id}-desc">Mermaid 원문으로부터 생성한 ${esc(type)} 다이어그램.</desc><defs>${defs}</defs><rect width="100%" height="100%" fill="${token('paper')}"/>${body}</svg>`;
 }
 export const themeCSS = `
-.md-surface{--md-paper:light-dark(#f5f5f5,#33384b);--md-ink:light-dark(#2d3142,#f5f5f5);--md-muted:light-dark(#58667c,#c2cada);--md-soft:light-dark(#758198,#949fb5);--md-border:light-dark(#8995a8,#8894ab);--md-rule:light-dark(#bec5d0,#606c83);--md-surface:light-dark(#eaeef2,#3e465a);--md-accent:light-dark(#b94e25,#f08a59);--md-tint:light-dark(#f4e3dc,#51434a);--md-series1:light-dark(#687f5a,#a4bb94);--md-series2:light-dark(#50749a,#91b2d4);--md-series3:light-dark(#977740,#d8b675);--md-series4:light-dark(#846087,#bc9dbf);--md-depth:light-dark(#96a4bb,#61708b);}
+.md-surface{${Object.keys(palettes.light).map(key=>`--md-${key}:light-dark(${palettes.light[key]},${palettes.dark[key]});`).join('')}}
 .theme-light .md-surface,[data-theme=light] .md-surface{color-scheme:light}.theme-dark .md-surface,.dark .md-surface,[data-theme=dark] .md-surface{color-scheme:dark}
 .md-surface[data-theme=light]{color-scheme:light}.md-surface[data-theme=dark]{color-scheme:dark}
 .md-diagram{font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;display:block}.md-diagram [data-edge]{vector-effect:non-scaling-stroke}

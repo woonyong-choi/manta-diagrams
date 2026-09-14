@@ -41,7 +41,7 @@ export function mountViewer(root, source, {sanitize, dark = false, onError = () 
   const fit = (read = false) => {
     if (!result || !stage.clientWidth || !stage.clientHeight) return;
     const ratio = stage.clientWidth / stage.clientHeight;
-    const width = read ? stage.clientWidth : Math.max(result.width, result.height * ratio);
+    const width = read ? stage.clientWidth : Math.max(result.width + 48, (result.height + 48) * ratio);
     view = {x: (result.x || 0) + (result.width - width) / 2,
       y: (result.y || 0) + (result.height - width / ratio) / 2, width, height: width / ratio};
     paint();
@@ -63,8 +63,10 @@ export function mountViewer(root, source, {sanitize, dark = false, onError = () 
     if (!result) return;
     const svg = stage.querySelector('svg')?.cloneNode(true);
     if (!svg) return;
-    svg.setAttribute('viewBox', `${result.x || 0} ${result.y || 0} ${result.width} ${result.height}`);
-    svg.setAttribute('width', String(result.width)); svg.setAttribute('height', String(result.height));
+    const padding = 24, x = (result.x || 0) - padding, y = (result.y || 0) - padding;
+    const width = result.width + padding * 2, height = result.height + padding * 2;
+    svg.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
+    svg.setAttribute('width', String(width)); svg.setAttribute('height', String(height));
     const probe = document.createElement('span');
     probe.hidden = true; root.append(probe);
     for (const name of ['paper','ink','muted','soft','border','rule','surface','accent','tint','series1','series2','series3','series4','depth']) {
@@ -74,7 +76,11 @@ export function mountViewer(root, source, {sanitize, dark = false, onError = () 
     probe.remove();
     svg.style.colorScheme = dark ? 'dark' : 'light';
     svg.style.fontFamily = 'system-ui, sans-serif';
-    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], {type: 'image/svg+xml'}));
+    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    for (const [key,value] of Object.entries({x,y,width,height,fill:svg.style.getPropertyValue('--md-paper')})) background.setAttribute(key,String(value));
+    svg.prepend(background);
+    const text = new XMLSerializer().serializeToString(svg);
+    const url = URL.createObjectURL(new Blob([text], {type: 'image/svg+xml'}));
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'manta-diagram.svg'; anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
