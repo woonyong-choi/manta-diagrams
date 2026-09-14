@@ -67,6 +67,15 @@ test('railroad middle baselines become numeric positions before HTML sanitizatio
   assert.equal(svg.querySelector('text').getAttribute('y'),'25.5');
 });
 
+test('owned edge presentation is applied after a host that drops vector-effect', () => {
+  const svg=sanitizeSvg('<svg><path data-edge="relation" d="M0 0L20 20" vector-effect="non-scaling-stroke"/></svg>',{hostSanitize:value=>{
+    const fragment=document.createRange().createContextualFragment(value);
+    fragment.querySelectorAll('[vector-effect]').forEach(node=>node.removeAttribute('vector-effect'));
+    return fragment;
+  }}).querySelector('svg');
+  assert.equal(svg.querySelector('path').getAttribute('vector-effect'),'non-scaling-stroke');
+});
+
 test('eventmodeling HTML labels retain bold, line breaks and centering across the host boundary', () => {
   const source = `<svg xmlns="http://www.w3.org/2000/svg"><g class="em-box"><foreignObject x="260" y="25" width="120" height="80"><div style="display:table;width:100%;height:100%"><span style="display:table-cell;text-align:center;vertical-align:middle"><b>장바구니</b><br/><code>item: UUID</code></span></div></foreignObject></g></svg>`;
   const hostSanitize = value => {

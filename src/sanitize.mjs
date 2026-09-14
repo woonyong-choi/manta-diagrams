@@ -86,7 +86,7 @@ export function sanitizeSvg(source, {dark = false, hostSanitize} = {}) {
   ready.querySelectorAll('style').forEach(node => node.remove());
   ready.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
   ready.setAttribute('font-family', fontFamily);
-  ready.querySelectorAll('[data-edge]').forEach(edge => edge.setAttribute('vector-effect', 'non-scaling-stroke'));
+  ready.querySelectorAll('[data-edge]').forEach(edge => edge.removeAttribute('vector-effect'));
   const result = hostSanitize ? hostSanitize(ready.outerHTML) : document.createDocumentFragment();
   if (!hostSanitize) result.append(ready);
   const after = result.querySelector('svg');
@@ -104,5 +104,6 @@ export function sanitizeSvg(source, {dark = false, hostSanitize} = {}) {
   if (labels(after) !== labels(original)) throw new Error('Some labels could not be displayed safely.');
   // Only owned presentation is applied after the host boundary.
   after.style.cssText = `display:block;max-width:none;filter:none;color:${palette.ink};font-family:${fontFamily}`;
+  after.querySelectorAll('[data-edge]').forEach(edge => edge.setAttribute('vector-effect', 'non-scaling-stroke'));
   return result;
 }
