@@ -26,8 +26,8 @@ function eventLabels(svg, palette) {
     if(box.hasAttribute('transform'))group.setAttribute('transform',box.getAttribute('transform'));
     rows.forEach((row,i)=>{
       const left=row.length&&row.every(run=>run.mono);
-      const text=make('text',{x:left?x:x+width/2,y:y+height/2+(i-(rows.length-1)/2)*step,
-        'text-anchor':left?'start':'middle','dominant-baseline':'middle','font-size':size,fill:palette.ink,'xml:space':'preserve'});
+      const text=make('text',{x:left?x:x+width/2,y:y+height/2+(i-(rows.length-1)/2)*step+size*.35,
+        'text-anchor':left?'start':'middle','font-size':size,fill:palette.ink,'xml:space':'preserve'});
       for(const run of row){const span=make('tspan',{'font-weight':run.bold?700:400,...(run.mono?{'font-family':'ui-monospace, monospace'}:{})});span.textContent=run.text;text.append(span);}
       group.append(text);
     });
