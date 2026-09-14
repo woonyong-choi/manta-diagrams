@@ -18,6 +18,7 @@ export function mermaidTheme(dark) {
     tertiaryColor:p.paper, tertiaryTextColor:p.ink, tertiaryBorderColor:p.rule,
     lineColor:p.muted, textColor:p.ink, mainBkg:p.surface, nodeBorder:p.border,
     clusterBkg:p.paper, clusterBorder:p.rule, edgeLabelBackground:p.paper,
+    archEdgeColor:p.muted, archEdgeArrowColor:p.muted, archGroupBorderColor:p.border,
     actorBkg:p.surface, actorBorder:p.border, actorTextColor:p.ink, actorLineColor:p.border,
     signalColor:p.muted, signalTextColor:p.ink, labelTextColor:p.ink,
     noteBkgColor:p.tint, noteBorderColor:p.border, noteTextColor:p.ink,
