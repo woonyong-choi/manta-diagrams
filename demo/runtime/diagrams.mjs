@@ -1,4 +1,5 @@
-import {render,verify} from '../../src/renderer.mjs';
+import {renderDocument as render} from '../../src/document.mjs';
+import {sanitizeSvg} from '../../src/sanitize.mjs';
 import {palettes} from '../../src/theme.mjs';
 import {frame,film} from './host.mjs';
 const host=document.querySelector('#runtime');host.classList.add('diagram-runtime','md-surface');
@@ -7,8 +8,9 @@ const base='flowchart LR\n  Read[Read the source] --> Explain[Explain the idea]\
 const frames=[];
 for(const [i,layout] of ['flowchart','loop','flowchart','loop','flowchart'].entries()){
  const source=`%% layout: ${layout}\n${base}`;
- const result=await render(source,{id:'movie-'+i});verify(result);
- code.textContent=source;drawing.innerHTML=result.svg;
+ const dark=document.documentElement.classList.contains('theme-dark');
+ const result=await render(source,{id:'movie-'+i,dark});
+ code.textContent=source;drawing.replaceChildren(sanitizeSvg(result.svg,{dark}));
  const svg=drawing.firstElementChild;svg.style.width='100%';svg.style.height='100%';
  for(const [key,value] of Object.entries(palettes[document.documentElement.classList.contains('theme-dark')?'dark':'light']))host.style.setProperty('--md-'+key,value);
  frames.push(frame(host,[0,.8,1.9,3.05,4.35][i],['Keep the source. Choose the layout.','Give a cycle room to breathe.','Follow the process from left to right.','Every label stays in the source.','One source. A clearer view.'][i]));

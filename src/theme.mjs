@@ -1,4 +1,8 @@
 // Shared by the document renderer, Manta layouts and portable exports.
+// paper: canvas; ink: labels; muted/soft: secondary text and connections;
+// surface: ordinary nodes; border/rule: outlines and separators; depth: groups.
+// accent/tint apply only to explicit focus; series1..4 distinguish chart series.
+// Colors supplement labels, endpoint marks and line patterns, never replace them.
 export const palettes = {
   light: {paper:'#ffffff', ink:'#1f2328', muted:'#59636e', soft:'#59636e', border:'#818b98', rule:'#d1d9e0', surface:'#f6f8fa', accent:'#a04729', tint:'#fff3eb', series1:'#42764c', series2:'#356eaa', series3:'#896a28', series4:'#81558d', depth:'#d1d9e0'},
   dark: {paper:'#0d1117', ink:'#e6edf3', muted:'#a4afbc', soft:'#a4afbc', border:'#738091', rule:'#3d4754', surface:'#161b22', accent:'#edaf86', tint:'#2b2420', series1:'#9dc9a4', series2:'#9cbfdf', series3:'#dfc38a', series4:'#c9a5d0', depth:'#303944'},

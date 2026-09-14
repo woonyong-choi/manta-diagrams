@@ -24,7 +24,7 @@ flowchart LR
 ```
 ````
 
-The note body and focused viewer share the same renderer. **Standard Mermaid** compares the original rendering without editing the note. The command also accepts a selected diagram. Disabling Manta returns ordinary `mermaid` blocks to Obsidian when the note is rendered again.
+The note body and focused viewer share the same renderer. **Original view** compares the original rendering without editing the note. The command also accepts a selected diagram. Disabling Manta returns ordinary `mermaid` blocks to Obsidian when the note is rendered again.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">

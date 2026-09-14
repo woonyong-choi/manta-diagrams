@@ -1,4 +1,6 @@
-import {render,verify} from './renderer.mjs';
+import {renderDocument as render} from './document.mjs';
+import {verify} from './renderer.mjs';
+import {sanitizeSvg} from './sanitize.mjs';
 import {cases} from './cases.mjs';
 import {payload} from 'preview-payload';
 const root=document.getElementById('mermaid-design-preview');
@@ -13,7 +15,8 @@ function setView(fit){if(!current)return;fitMode=fit;const ratio=stage.clientWid
   paintView();}
 function zoom(factor){if(!current)return;fitMode=false;const limit=Math.max(current.width,current.height*stage.clientWidth/stage.clientHeight)*2,nw=Math.min(limit,Math.max(160,view.w*factor)),nh=nw*stage.clientHeight/stage.clientWidth;view={x:view.x+(view.w-nw)/2,y:view.y+(view.h-nh)/2,w:nw,h:nh};paintView();}
 function focusNode(id){const node=[...stage.querySelectorAll('[data-node]')].find(n=>n.getAttribute('data-node')===id);if(!node)return;stage.querySelectorAll('[data-node]').forEach(n=>n.toggleAttribute('data-selected',n===node));const box=node.getBBox();view={x:box.x+box.width/2-stage.clientWidth/2,y:box.y+box.height/2-stage.clientHeight/2,w:stage.clientWidth,h:stage.clientHeight};fitMode=false;paintView();nodeSelect.value=id;}
-async function update(){endGesture();const ticket=++revision;root.dataset.renderStatus='rendering';error.hidden=true;status.textContent='렌더링 중…';try{const next=await render(source.value,{id:'preview'});verify(next);if(ticket!==revision)return;current=next;stage.hidden=false;el('help').hidden=false;for(const id of ['fit','read','in','out'])el(id).disabled=false;stage.innerHTML=next.svg;
+const darkMode=()=>el('theme').value==='dark'||(el('theme').value==='auto'&&getComputedStyle(stage).colorScheme==='dark');
+async function update(){endGesture();const ticket=++revision;root.dataset.renderStatus='rendering';error.hidden=true;status.textContent='렌더링 중…';try{const next=await render(source.value,{id:'preview',dark:darkMode()});if(next.model)verify(next);next.model||={nodes:[],edges:[],groups:[]};next.stats||={nodes:0,edges:0,groups:0};if(ticket!==revision)return;current=next;stage.hidden=false;el('help').hidden=false;for(const id of ['fit','read','in','out'])el(id).disabled=false;stage.replaceChildren(sanitizeSvg(next.svg,{dark:darkMode()}));
   nodeSelect.replaceChildren();const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='노드 선택';nodeSelect.append(placeholder);for(const n of next.model.nodes.filter(n=>!/^state(Start|End)$/.test(n.shape))){const option=document.createElement('option');option.value=n.id;option.textContent=n.label.replace(/\n/g,' · ');nodeSelect.append(option);}el('node-label').hidden=!next.model.nodes.length;
   status.textContent=next.stats.nodes?`${next.stats.nodes}개 노드 · ${next.model.sankey?.links.length??next.stats.edges}개 연결${next.stats.groups?' · '+next.stats.groups+'개 그룹':''}`:'입력 데이터 렌더링 완료';
   const map=el('map');map.hidden=next.width<stage.clientWidth*1.5&&next.height<stage.clientHeight*1.5;map.replaceChildren();
@@ -23,7 +26,7 @@ async function update(){endGesture();const ticket=++revision;root.dataset.render
 function choose(){const item=items.find(x=>x.id===select.value);source.value=item[el('case').value];el('purpose').textContent=item.purpose;update();}
 select.addEventListener('change',choose);el('case').addEventListener('change',choose);
 let timer;source.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(update,300);});
-el('theme').addEventListener('change',e=>{for(const target of[stage,el('measure'),el('map')])target.dataset.theme=e.target.value;});
+el('theme').addEventListener('change',e=>{for(const target of[stage,el('measure'),el('map')])target.dataset.theme=e.target.value;void update();});
 el('fit').addEventListener('click',()=>setView(true));el('read').addEventListener('click',()=>setView(false));el('in').addEventListener('click',()=>zoom(.7));el('out').addEventListener('click',()=>zoom(1/.7));nodeSelect.addEventListener('change',()=>focusNode(nodeSelect.value));
 function endGesture(){
   const ended=gesture;if(!ended)return;
@@ -74,9 +77,9 @@ el('run-checks').addEventListener('click',async()=>{
   const checks=[],measure=el('measure'),button=el('run-checks');button.disabled=true;root.dataset.browserChecks='running';
   for(const example of cases)for(const kind of ['basic','complex']){
     try{
-      const result=await render(example[kind],{id:'check-'+example.id+'-'+kind});verify(result);
+      const result=await render(example[kind],{id:'check-'+example.id+'-'+kind});if(result.model)verify(result);
       for(const theme of ['light','dark']){
-        measure.dataset.theme=theme;measure.innerHTML=result.svg;
+        measure.dataset.theme=theme;measure.replaceChildren(sanitizeSvg(result.svg,{dark:theme==='dark'}));
         await new Promise(requestAnimationFrame);
         const svg=measure.querySelector('svg'),outside=[],overlaps=[],overflow=[],small=[];
         const texts=[...svg.querySelectorAll('text')];

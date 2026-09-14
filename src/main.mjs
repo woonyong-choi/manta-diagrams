@@ -1,13 +1,15 @@
-import {Plugin, MarkdownRenderChild, Modal, sanitizeHTMLToDom} from 'obsidian';
+import {Plugin, MarkdownRenderChild, Modal, sanitizeHTMLToDom, setIcon} from 'obsidian';
 import {diagramAt} from './document.mjs';
 import {mountViewer} from './viewer.mjs';
+import {sanitizeSvg} from './sanitize.mjs';
+const sanitize = (source, options) => sanitizeSvg(source, {...options, hostSanitize: sanitizeHTMLToDom});
 
 class DiagramModal extends Modal {
   constructor(app, source) {super(app); this.source = source;}
   onOpen() {
     this.setTitle('Manta Diagrams');
     this.modalEl.classList.add('manta-diagrams-modal');
-    this.dispose = mountViewer(this.contentEl, this.source, {sanitize: sanitizeHTMLToDom,
+    this.dispose = mountViewer(this.contentEl, this.source, {sanitize, icon: setIcon,
       dark: document.body.classList.contains('theme-dark')});
   }
   onClose() {this.dispose?.();}
@@ -15,7 +17,7 @@ class DiagramModal extends Modal {
 
 class InlineDiagram extends MarkdownRenderChild {
   constructor(element, source, inline = false, open) {super(element); this.source = source; this.inline = inline; this.open = open;}
-  onload() {this.dispose = mountViewer(this.containerEl, this.source, {sanitize: sanitizeHTMLToDom,
+  onload() {this.dispose = mountViewer(this.containerEl, this.source, {sanitize, icon: setIcon,
     dark: document.body.classList.contains('theme-dark'), inline: this.inline, open: this.open});}
   onunload() {this.dispose?.();}
 }
