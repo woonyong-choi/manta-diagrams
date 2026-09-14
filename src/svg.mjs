@@ -59,8 +59,8 @@ export function frame(body,width,height,type,id='md',title='') {
   for(const marker of markers){
     if(['only_one','zero_or_one','one_or_more','zero_or_more'].includes(marker)){
       const maximum=marker.endsWith('more')?'M22 2 L12 7 L22 12 M12 7 H22':'M22 2 V12';
-      const minimum=marker.startsWith('zero')?'<circle cx="6" cy="7" r="3" fill="var(--md-paper)" stroke="var(--md-muted)"/>':'<path d="M6 2 V12" fill="none" stroke="var(--md-muted)"/>';
-      defs+=`<marker id="${id}-${marker}" markerWidth="24" markerHeight="14" refX="23" refY="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="${maximum}" fill="none" stroke="var(--md-muted)"/>${minimum}</marker>`;
+      const minimum=marker.startsWith('zero')?'<circle cx="6" cy="7" r="3" fill="var(--md-paper)" stroke="var(--md-muted)"/>':`<path d="M${marker==='only_one'?16:6} 2 V12" fill="none" stroke="var(--md-muted)"/>`;
+      defs+=`<marker id="${id}-${marker}" markerWidth="26" markerHeight="14" refX="25" refY="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="${maximum}" fill="none" stroke="var(--md-muted)"/>${minimum}</marker>`;
       continue;
     }
     const content=marker==='extension'?'<path d="M1 1 L11 6 L1 11 Z" fill="var(--md-paper)" stroke="var(--md-muted)"/>':
