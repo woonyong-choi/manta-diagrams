@@ -57,11 +57,16 @@ export function frame(body,width,height,type,id='md',title='') {
   const markers=['point','dependency','extension','composition','aggregation','cross','circle','only_one','zero_or_one','one_or_more','zero_or_more'];
   let defs='';
   for(const marker of markers){
+    if(['only_one','zero_or_one','one_or_more','zero_or_more'].includes(marker)){
+      const maximum=marker.endsWith('more')?'M22 2 L12 7 L22 12 M12 7 H22':'M22 2 V12';
+      const minimum=marker.startsWith('zero')?'<circle cx="6" cy="7" r="3" fill="var(--md-paper)" stroke="var(--md-muted)"/>':'<path d="M6 2 V12" fill="none" stroke="var(--md-muted)"/>';
+      defs+=`<marker id="${id}-${marker}" markerWidth="24" markerHeight="14" refX="23" refY="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="${maximum}" fill="none" stroke="var(--md-muted)"/>${minimum}</marker>`;
+      continue;
+    }
     const content=marker==='extension'?'<path d="M1 1 L11 6 L1 11 Z" fill="var(--md-paper)" stroke="var(--md-muted)"/>':
       marker==='composition'||marker==='aggregation'?`<path d="M0 6 L6 2 L12 6 L6 10 Z" fill="${marker==='composition'?'var(--md-muted)':'var(--md-paper)'}" stroke="var(--md-muted)"/>`:
       marker==='cross'?'<path d="M4 2 L10 10 M4 10 L10 2" stroke="var(--md-muted)"/>':
       marker==='circle'?'<circle cx="7" cy="6" r="4" fill="var(--md-paper)" stroke="var(--md-muted)"/>':
-      marker.includes('one')||marker.includes('more')?`<path d="${marker.includes('more')?'M0 1 L10 6 L0 11':'M8 1 L8 11'}" fill="none" stroke="var(--md-muted)"/>${marker.startsWith('zero')?'<circle cx="1" cy="6" r="3" fill="var(--md-paper)" stroke="var(--md-muted)"/>':'<path d="M2 1 L2 11" stroke="var(--md-muted)"/>'}`:
       '<path d="M1 2 L10 6 L1 10" fill="none" stroke="var(--md-muted)" stroke-width="1.2"/>';
     defs+=`<marker id="${id}-${marker}" markerWidth="14" markerHeight="12" refX="11" refY="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse">${content}</marker>`;
   }

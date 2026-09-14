@@ -42,6 +42,12 @@ test('ordinary diagrams use the same Manta renderer as explicit layouts', async 
         [['1. 기록', 'only_one', 'zero_or_more', false], ['2. 원문', 'zero_or_more', 'only_one', true]]);
       assert.deepEqual(result.model.nodes.flatMap(node => node.fields || []).map(field => [field.type,field.name,field.keys,field.comment]),
         [['string','id',['PK'],'식별자'],['string','account_id',['FK'],'소유 계정']]);
+      const diagram=new DOMParser().parseFromString(result.svg,'text/html');
+      for(const mark of ['zero_or_one','zero_or_more']){
+        const marker=diagram.querySelector(`marker[id$="-${mark}"]`),circle=marker.querySelector('circle');
+        const x=+circle.getAttribute('cx'),y=+circle.getAttribute('cy'),radius=+circle.getAttribute('r');
+        assert(x-radius>=0&&y-radius>=0&&x+radius<=+marker.getAttribute('markerWidth')&&y+radius<=+marker.getAttribute('markerHeight'),'optional cardinality circle must not be clipped');
+      }
       const vertical = await renderDocument(source.replace('erDiagram', 'erDiagram\ndirection TB'), {id:'explicit-direction'});
       assert.equal(vertical.model.direction, 'TB');
     }
