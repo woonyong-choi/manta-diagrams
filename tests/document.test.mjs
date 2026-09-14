@@ -1,9 +1,10 @@
-import {test} from 'node:test';
+import {test, mock} from 'node:test';
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<!doctype html><html><body></body></html>', {pretendToBeVisual:true});
 for (const name of ['window','document','DOMParser','HTMLElement','SVGElement','Element','Node']) globalThis[name] = dom.window[name];
-const {diagramAt} = await import('../src/document.mjs');
+const {diagramAt, renderDocument, diagramViewport} = await import('../src/document.mjs');
+const {default: mermaid} = await import('mermaid');
 
 test('selects the exact complete fenced source around the cursor', () => {
   const note = '# Source\n\n```mermaid\nflowchart LR\n A[one] --> B[two]\n```\ntext\n~~~manta\npie\n "A" : 2\n~~~';
@@ -13,4 +14,70 @@ test('selects the exact complete fenced source around the cursor', () => {
   assert.equal(diagramAt('```mermaid\nA-->B', 1), null);
   assert.equal(diagramAt('````mermaid\n```\nA-->B\n````', 2), '```\nA-->B');
   assert.equal(diagramAt('````text\n```mermaid\nA-->B\n```\n````', 2), null);
+});
+
+test('large diagrams open at readable size and fit only on request', () => {
+  const result={x:-40,y:-20,width:2200,height:1400};
+  const reading=diagramViewport(result,640,480);
+  assert.deepEqual(reading,{x:-64,y:-44,width:640,height:480});
+  const fit=diagramViewport(result,640,480,true);
+  assert(fit.width>=result.width+48);
+  assert(fit.height>=result.height+48);
+  assert.equal(640/reading.width,1);
+  assert(640/fit.width<1);
+});
+
+test('ordinary diagrams use the same Manta renderer as explicit layouts', async () => {
+  for (const source of [
+    'flowchart LR\nA[원문] -->|보존| B[문서]',
+    'classDiagram\nclass Animal {\n +String name\n}\nclass Habitat\nAnimal --> Habitat : lives',
+    'erDiagram\nACCOUNT ||--o{ ENTRY : "1. 기록"\nENTRY }o..|| SOURCE : "2. 원문"\nACCOUNT {\n string id PK "식별자"\n}\nENTRY {\n string account_id FK "소유 계정"\n}',
+  ]) {
+    const result = await renderDocument(source, {id: 'ordinary-diagram'});
+    assert.equal(result.engine, 'Manta');
+    assert(result.svg.includes('data-node='));
+    if (result.type === 'er') {
+      assert.equal(result.model.direction, 'LR');
+      assert.deepEqual(result.model.edges.map(edge => [edge.label, edge.startMark, edge.endMark, edge.dashed]),
+        [['1. 기록', 'only_one', 'zero_or_more', false], ['2. 원문', 'zero_or_more', 'only_one', true]]);
+      assert.deepEqual(result.model.nodes.flatMap(node => node.fields || []).map(field => [field.type,field.name,field.keys,field.comment]),
+        [['string','id',['PK'],'식별자'],['string','account_id',['FK'],'소유 계정']]);
+      const diagram=new DOMParser().parseFromString(result.svg,'text/html');
+      for(const mark of ['zero_or_one','zero_or_more']){
+        const marker=diagram.querySelector(`marker[id$="-${mark}"]`),circle=marker.querySelector('circle');
+        const x=+circle.getAttribute('cx'),y=+circle.getAttribute('cy'),radius=+circle.getAttribute('r');
+        assert(x-radius>=0&&y-radius>=0&&x+radius<=+marker.getAttribute('markerWidth')&&y+radius<=+marker.getAttribute('markerHeight'),'optional cardinality circle must not be clipped');
+      }
+      const vertical = await renderDocument(source.replace('erDiagram', 'erDiagram\ndirection TB'), {id:'explicit-direction'});
+      assert.equal(vertical.model.direction, 'TB');
+    }
+  }
+});
+
+test('authored styles and links remain with standard Mermaid and keep the exact source', async () => {
+  const rendered = [];
+  const stub = mock.method(mermaid, 'render', async (id, source) => {
+    rendered.push(source);
+    return {svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"></svg>'};
+  });
+  try {
+    for (const source of [
+      'classDiagram\nclass Animal\ncssClass "Animal" custom',
+      'flowchart LR\nA-->B\nclass A custom',
+      'classDiagram\nclass Animal\nstyle Animal fill:#abc',
+      'flowchart LR\nA-->B\nclick A "https://example.com"',
+      'flowchart LR\nA@{shape:cloud, label:"원문 보존"}',
+    ]) {
+      const result = await renderDocument(source, {id: 'authored-class', dark: true});
+      assert.equal(result.engine, 'Mermaid');
+      assert.equal(mermaid.mermaidAPI.getConfig().theme, 'dark');
+      assert.equal(mermaid.mermaidAPI.getConfig().securityLevel, 'strict');
+      assert.equal(rendered.at(-1), source);
+    }
+    const source = 'pie\n "원문" : 2';
+    const result = await renderDocument(source, {id:'unsupported-layout'});
+    assert.equal(result.engine, 'Mermaid');
+    assert.equal(rendered.at(-1), source);
+    assert(result.notice.includes('standard Mermaid'));
+  } finally {stub.mock.restore();}
 });

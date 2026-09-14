@@ -69,6 +69,8 @@ async function parseOne(source) {
   }
   result.edges=data.edges.map((e,i)=>({...e,id:e.id||`edge-${i}`,label:plain(e.label||''),startMark:e.arrowTypeStart||'none',endMark:e.arrowTypeEnd||'none',dashed:e.pattern==='dashed'||e.pattern==='dotted'||e.pattern==='dash',hidden:e.thickness==='invisible'}));
   if(db.getDirection)result.direction=db.getDirection();
+  // Compact ER diagrams by default; keep an explicitly authored direction.
+  if(diagram.type==='er'&&!/^\s*direction\s+(?:TB|BT|LR|RL)\b/m.test(source))result.direction='LR';
   if(db.getSubGraphs){const subgraphs=db.getSubGraphs();for(const sg of subgraphs){const g=result.groups.find(n=>n.id===sg.id);if(g)g.dir=sg.dir;}const order=new Map(subgraphs.map((g,i)=>[g.id,i]));result.groups.sort((a,b)=>order.get(a.id)-order.get(b.id));}
   const all=new Set([...result.nodes,...result.groups].map(n=>n.id));
   assert(result.edges.every(e=>all.has(e.start)&&all.has(e.end)), '존재하지 않는 노드를 가리키는 연결이 있습니다.');

@@ -41,7 +41,7 @@ export function metrics(n,type) {
 }
 export function nodeBody(n,m,type,focus) {
   const {x,y,width:w,height:h}=n,cx=x+w/2,cy=y+h/2;
-  const fill=n.id===focus?'tint':/cylinder|database/.test(n.shape)?'surface':'paper',stroke=n.id===focus?'accent':'border';
+  const fill=n.id===focus?'tint':'surface',stroke=n.id===focus?'accent':'border';
   let body='';
   if(n.shape==='stateStart')body=circle(cx,cy,8);
   else if(n.shape==='stateEnd')body=circle(cx,cy,11,{fill:'none',stroke:'ink'})+circle(cx,cy,7);

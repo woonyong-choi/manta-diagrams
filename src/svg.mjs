@@ -1,5 +1,5 @@
 import {assert} from './parse.mjs';
-import {palettes} from './theme.mjs';
+import {palettes, fontFamily} from './theme.mjs';
 
 export const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 export const num = n => {assert(Number.isFinite(n),'그림 좌표가 유효하지 않습니다.');return Math.round(n*1000)/1000;};
@@ -10,7 +10,7 @@ export function textWidth(text,size=14) {
   // conservative estimate; browser geometry verification remains authoritative.
   if(typeof window!=='undefined'&&!/jsdom/i.test(window.navigator?.userAgent||'')){
     const ctx=textWidth.context ||= document.createElement('canvas').getContext('2d');
-    if(ctx){ctx.font=`${size}px "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif`;return ctx.measureText(String(text)).width;}
+    if(ctx){ctx.font=`${size}px ${fontFamily}`;return ctx.measureText(String(text)).width;}
   }
   return [...String(text)].reduce((sum,c)=>sum+size*(/[^\u0000-\u00ff]/.test(c)?1:/[MW@%]/.test(c)?.92:/[A-Z0-9]/.test(c)?.68:/[il.,:;'!| ]/.test(c)?.36:.62),0);
 }
@@ -57,11 +57,16 @@ export function frame(body,width,height,type,id='md',title='') {
   const markers=['point','dependency','extension','composition','aggregation','cross','circle','only_one','zero_or_one','one_or_more','zero_or_more'];
   let defs='';
   for(const marker of markers){
+    if(['only_one','zero_or_one','one_or_more','zero_or_more'].includes(marker)){
+      const maximum=marker.endsWith('more')?'M22 2 L12 7 L22 12 M12 7 H22':'M22 2 V12';
+      const minimum=marker.startsWith('zero')?'<circle cx="6" cy="7" r="3" fill="var(--md-paper)" stroke="var(--md-muted)"/>':`<path d="M${marker==='only_one'?16:6} 2 V12" fill="none" stroke="var(--md-muted)"/>`;
+      defs+=`<marker id="${id}-${marker}" markerWidth="26" markerHeight="14" refX="25" refY="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="${maximum}" fill="none" stroke="var(--md-muted)"/>${minimum}</marker>`;
+      continue;
+    }
     const content=marker==='extension'?'<path d="M1 1 L11 6 L1 11 Z" fill="var(--md-paper)" stroke="var(--md-muted)"/>':
       marker==='composition'||marker==='aggregation'?`<path d="M0 6 L6 2 L12 6 L6 10 Z" fill="${marker==='composition'?'var(--md-muted)':'var(--md-paper)'}" stroke="var(--md-muted)"/>`:
       marker==='cross'?'<path d="M4 2 L10 10 M4 10 L10 2" stroke="var(--md-muted)"/>':
       marker==='circle'?'<circle cx="7" cy="6" r="4" fill="var(--md-paper)" stroke="var(--md-muted)"/>':
-      marker.includes('one')||marker.includes('more')?`<path d="${marker.includes('more')?'M0 1 L10 6 L0 11':'M8 1 L8 11'}" fill="none" stroke="var(--md-muted)"/>${marker.startsWith('zero')?'<circle cx="1" cy="6" r="3" fill="var(--md-paper)" stroke="var(--md-muted)"/>':'<path d="M2 1 L2 11" stroke="var(--md-muted)"/>'}`:
       '<path d="M1 2 L10 6 L1 10" fill="none" stroke="var(--md-muted)" stroke-width="1.2"/>';
     defs+=`<marker id="${id}-${marker}" markerWidth="14" markerHeight="12" refX="11" refY="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse">${content}</marker>`;
   }
@@ -71,5 +76,5 @@ export const themeCSS = `
 .md-surface{${Object.keys(palettes.light).map(key=>`--md-${key}:light-dark(${palettes.light[key]},${palettes.dark[key]});`).join('')}}
 .theme-light .md-surface,[data-theme=light] .md-surface{color-scheme:light}.theme-dark .md-surface,.dark .md-surface,[data-theme=dark] .md-surface{color-scheme:dark}
 .md-surface[data-theme=light]{color-scheme:light}.md-surface[data-theme=dark]{color-scheme:dark}
-.md-diagram{font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;display:block}.md-diagram [data-edge]{vector-effect:non-scaling-stroke}
+.md-diagram{font-family:${fontFamily};display:block}.md-diagram [data-edge]{vector-effect:non-scaling-stroke}
 `;

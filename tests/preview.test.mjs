@@ -9,7 +9,10 @@ test('preview pointer interactions',async t=>{
   const dom=new JSDOM(template,{runScripts:'outside-only'}),{window}=dom;
   t.after(()=>window.close());
   Object.assign(globalThis,{window,document:window.document,DOMParser:window.DOMParser});
-  const {render,verify}=await import('../src/renderer.mjs');
+  const {renderDocument:render,diagramViewport}=await import('../src/document.mjs');
+  const {palettes}=await import('../src/theme.mjs');
+  const {verify}=await import('../src/renderer.mjs');
+  const {sanitizeSvg}=await import('../src/sanitize.mjs');
   const {cases}=await import('../src/cases.mjs');
   const root=window.document.getElementById('mermaid-design-preview');
   const el=id=>root.querySelector('#md-'+id),stage=el('stage'),map=el('map');
@@ -35,7 +38,7 @@ test('preview pointer interactions',async t=>{
   window.Element.prototype.hasPointerCapture=function(id){return captures.get(this)===id;};
   window.Element.prototype.releasePointerCapture=function(id){if(this.hasPointerCapture(id))captures.delete(this);};
   window.ResizeObserver=class{observe(){}disconnect(){}};
-  Object.assign(window,{render,verify,cases:cases.filter(c=>c.id==='tree'),payload:{report:{types:{passed:0},complex:{passed:0}}}});
+  Object.assign(window,{render,diagramViewport,palettes,verify,sanitizeSvg,cases:cases.filter(c=>c.id==='tree'),payload:{report:{types:{passed:0},complex:{passed:0}}}});
   for(const script of window.document.querySelectorAll('script:not([type])'))window.eval(script.textContent);
   window.eval(script.replace(/^import .*;\n/gm,''));
   const ready=async(expected='ready')=>{
@@ -107,12 +110,10 @@ test('preview pointer interactions',async t=>{
     close(view()[0],before[0]-25/scale);close(view()[1],before[1]-15/scale);
     width=736;height=520;reset();
   });
-  await t.test('ordinary tree boxes receive fill without overriding selection or semantic fills',()=>{
-    reset();const rule=[...window.document.styleSheets].flatMap(sheet=>[...sheet.cssRules]).find(rule=>rule.selectorText?.includes('[data-node]:not([data-selected])'));
-    assert(rule);const boxes=[...stage.querySelectorAll('[data-node] > rect:first-child[fill="var(--md-paper)"]')];
-    assert(boxes.length>1);assert(boxes.every(box=>box.matches(rule.selectorText)));
-    const node=boxes[0].parentElement;node.setAttribute('data-selected','');assert(!boxes[0].matches(rule.selectorText));node.removeAttribute('data-selected');
-    for(const shape of stage.querySelectorAll('[data-node] > :first-child:not([fill="var(--md-paper)"])'))assert(!shape.matches(rule.selectorText));
+  await t.test('ordinary nodes use the shared renderer surface without preview-only paint',()=>{
+    reset();const boxes=[...stage.querySelectorAll('[data-node] > rect:first-child')];
+    assert(boxes.length>1);assert(boxes.every(box=>box.getAttribute('fill')==='#f6f8fa'));
+    assert.equal([...window.document.styleSheets].flatMap(sheet=>[...sheet.cssRules]).some(rule=>rule.selectorText?.includes('[data-node]:not([data-selected])')),false);
   });
   if(el('box-polish'))await t.test('comparison can turn box and minimap polish off and back on',()=>{
     const rules=[...window.document.styleSheets].flatMap(sheet=>[...sheet.cssRules]);
@@ -124,7 +125,8 @@ test('preview pointer interactions',async t=>{
     }
   });
   await t.test('render changes and invalid input release an active gesture',async()=>{
-    pointer(stage,'pointerdown',100,100);el('case').value='boundary';el('case').dispatchEvent(new window.Event('change'));
+    pointer(stage,'pointerdown',100,100);el('source').value='not a diagram';el('source').dispatchEvent(new window.Event('input'));
+    await new Promise(resolve=>setTimeout(resolve,320));
     assert.equal(captures.size,0);await ready('error');assert(stage.hidden);assert(map.hidden);
     pointer(stage,'pointermove',150,150);pointer(stage,'pointerup',150,150);
     el('case').value='complex';el('case').dispatchEvent(new window.Event('change'));await ready();
