@@ -14,8 +14,8 @@
 const timeline=gsap.timeline({paused:true});
 // The small camera move deliberately clips only the outer capture edge.
 timeline.set('#detail1',{opacity:1},0);
-timeline.set('#detail2',{y:10,opacity:0},0);
-timeline.set('#screen2',{scale:1.035,opacity:0},0);
+gsap.set('#detail2',{y:10,opacity:0});
+gsap.set('#screen2',{scale:1.035,opacity:0});
 timeline.fromTo('#screen1',{scale:1,opacity:1},{scale:1.035,opacity:1,duration:4.5,ease:'sine.inOut'},0);
 timeline.to('#screen2',{opacity:1,duration:.55,ease:'sine.inOut'},4.4);
 timeline.to('#detail1',{opacity:0,duration:.25},4.25);

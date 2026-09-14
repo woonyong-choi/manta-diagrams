@@ -29,6 +29,8 @@ for(const p of products){
   }
   await copyFile('demo/assets/gsap.min.js',dir+'/assets/gsap.min.js');
   let html=template;for(const [key,value]of Object.entries({NAME:p.name,TITLE:p.title,FIRST:p.first,SECOND:p.second,CAPTURE:p.capture,EXT:p.slug==='diagrams'?'svg':'png'}))html=html.replaceAll('__'+key+'__',escape(value));
+  // SVG letterboxing is transparent; cover the earlier frame during transitions.
+  if(p.slug==='diagrams') html=html.replace('.screen img{','.screen img{background:#f5f5f5;');
   await writeFile(dir+'/index.html',html);
   await writeFile(dir+'/inputs.json',JSON.stringify({product:p.name,capture:p.capture,inputs},null,2)+'\n');
   await writeFile(dir+'/index.motion.json',JSON.stringify({duration:10,assertions:[{kind:'appearsBy',selector:'.words',bySec:1},{kind:'appearsBy',selector:'#screen2',bySec:5.2},{kind:'staysInFrame',selector:'.words'},{kind:'keepsMoving',withinSelector:'.progress',maxStaticSec:2}]},null,2)+'\n');
