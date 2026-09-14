@@ -28,10 +28,10 @@ The note body and focused viewer share the same renderer. **Original view** comp
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">
-  <img src="docs/assets/manta-diagrams-intro.gif" alt="Manta Diagrams: switch between a flowchart and a loop while keeping the same source" width="1200">
+  <img src="docs/assets/manta-diagrams-intro.gif" alt="Manta Diagrams: edit Mermaid labels and add or remove a connected step, then see the rendered result" width="1200">
 </picture>
 
-A six-second loop of the actual renderer: the source keeps the same nodes and connections while the layout changes. Timing is condensed.
+A six-second loop of source edits and the actual renderer's results: rename a label, add a connected step and remove it. This is a fixture with condensed timing, not a recording of native Obsidian or simulated node animation.
 
 ## Choose a layout when it helps
 

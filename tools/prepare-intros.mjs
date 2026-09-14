@@ -5,6 +5,7 @@ import {build} from 'esbuild';
 import {themeCSS} from '../src/svg.mjs';
 const workspace=resolve(process.argv[2]||'..');
 const template=await readFile('demo/intro.html','utf8');
+const diagramTemplate=await readFile('demo/diagrams.html','utf8');
 // Use the existing browser fixture's public host tokens; retain the product's own CSS.
 let hostCss=(await readFile(resolve(workspace,'manta-calendar/tests/fixtures/link-calendar-dark.html'),'utf8')).split('<style>')[1].split('html, body,')[0];
 hostCss=hostCss.replace('--background-primary: #191919','--background-primary: #0d1117').replace('--font-ui-smaller: 11px','--font-ui-smaller: 14px').replace('--font-ui-small: 12px','--font-ui-small: 16px').replace('--font-ui-medium: 13px','--font-ui-medium: 18px');
@@ -21,13 +22,13 @@ for(const [slug,name,title] of products.filter(([slug])=>!selected||slug===selec
  await copyFile('demo/assets/gsap.min.js',dir+'/assets/gsap.min.js');
  await writeFile(dir+'/assets/product.css',slug==='diagrams'?themeCSS:await readFile(product+'/styles.css','utf8'));
  const provenance=`${name} ${packageJson.version} ${slug==='diagrams'?'renderer':slug==='code-blocks'?'browser UI':'view fixture'}`;
- const values={NAME:name,TITLE:title,THEME:'theme-light',PROVENANCE:provenance,HOST_CSS:hostCss};let html=template;
+ const values={NAME:name,TITLE:title,THEME:'theme-light',PROVENANCE:provenance,HOST_CSS:hostCss};let html=slug==='diagrams'?diagramTemplate:template;
  for(const [key,value]of Object.entries(values))html=html.replaceAll('__'+key+'__',value);
  await writeFile(dir+'/index.html',html);
  const inputs={product:name,version:packageJson.version,provenance:'Production UI with public sample data; Obsidian host boundary replaced for Graph and Calendar. Timing condensed; not a native Obsidian recording.',loop:true,duration:6,cursor:false,inputs:{}};
  for(const path of Object.keys(result.metafile.inputs).filter(p=>!p.includes('node_modules'))){inputs.inputs[path.replaceAll(workspace+'/','')]=createHash('sha256').update(await readFile(path)).digest('hex');}
  await writeFile(dir+'/inputs.json',JSON.stringify(inputs,null,2)+'\n');
- await writeFile(dir+'/index.motion.json',JSON.stringify({duration:6,assertions:[{kind:'appearsBy',selector:'.screen',bySec:.1},{kind:'staysInFrame',selector:'.screen'},{kind:'staysInFrame',selector:'.words'},{kind:'keepsMoving',withinSelector:'.screen',maxStaticSec:1.7}]},null,2)+'\n');
+ await writeFile(dir+'/index.motion.json',JSON.stringify({duration:6,assertions:[{kind:'appearsBy',selector:'.screen',bySec:.1},{kind:'staysInFrame',selector:'.screen'},{kind:'staysInFrame',selector:slug==='diagrams'?'#shot-0 .diagram-source':'.words'},{kind:'keepsMoving',withinSelector:'.screen',maxStaticSec:1.7}]},null,2)+'\n');
  const darkDir=dir+'-dark';await mkdir(darkDir+'/assets',{recursive:true});
  for(const asset of ['action.js','product.css','gsap.min.js'])await copyFile(dir+'/assets/'+asset,darkDir+'/assets/'+asset);
  await writeFile(darkDir+'/index.html',html.replace('class="theme-light"','class="theme-dark"'));

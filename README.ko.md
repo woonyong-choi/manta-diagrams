@@ -14,10 +14,10 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">
-  <img src="docs/assets/manta-diagrams-intro.gif" alt="같은 Mermaid 원문을 흐름도와 순환도로 바꾸는 Manta Diagrams" width="1200">
+  <img src="docs/assets/manta-diagrams-intro.gif" alt="Mermaid 라벨을 수정하고 연결된 단계를 추가·삭제하면 실제 렌더러의 결과가 바뀌는 Manta Diagrams" width="1200">
 </picture>
 
-실제 렌더러가 만든 흐름도와 순환도를 6초 루프로 보여줍니다. 노드와 연결은 유지하며 배치만 바뀝니다.
+라벨 수정과 연결된 단계의 추가·삭제를 실제 렌더러 결과와 함께 6초 루프로 보여줍니다. 공개 예제의 편집 시간을 줄인 데모이며, Obsidian 실행 녹화나 노드 이동 애니메이션은 아닙니다.
 
 지원되는 일반 Mermaid 입력에는 Manta 배치를 적용합니다. **Original view**로 같은 원문의 표준 Mermaid 보기를 비교할 수 있습니다. 순환 배치는 `%% layout: loop` 주석으로 선택합니다. 작성자가 지정한 스타일과 링크는 표준 Mermaid로 처리하고, 입력을 Manta로 표현할 수 없으면 이유와 함께 표준 화면을 시도합니다. 문법 오류가 있으면 이전 그림을 지우고 원문과 오류를 보여줍니다.
 
