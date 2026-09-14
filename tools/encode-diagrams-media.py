@@ -21,7 +21,7 @@ parser.add_argument('--composition', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True, help='Output stem, without suffix')
 parser.add_argument('--theme', choices=['light', 'dark'], required=True)
 args = parser.parse_args()
-frames = [args.frames / f'frame_{i:06d}.png' for i in range(360)]
+frames = [args.frames / f'frame_{i:06d}.png' for i in range(1, 361)]
 outputs = [args.output.with_suffix(ext) for ext in ['.mp4', '.gif', '.json']]
 if any(not p.is_file() for p in frames) or len(list(args.frames.glob('*.png'))) != 360:
     parser.error('Expected exactly 360 PNG frames captured at 60fps')
@@ -29,7 +29,7 @@ if any(p.exists() for p in outputs):
     parser.error('Output exists; choose a new stem to preserve the previous render')
 args.output.parent.mkdir(parents=True, exist_ok=True)
 paper = (255, 255, 255) if args.theme == 'light' else (13, 17, 23)
-ffmpeg = ['ffmpeg', '-v', 'error', '-n', '-framerate', '60', '-i', str(args.frames / 'frame_%06d.png')]
+ffmpeg = ['ffmpeg', '-v', 'error', '-n', '-framerate', '60', '-start_number', '1', '-i', str(args.frames / 'frame_%06d.png')]
 # The MP4 is an RGB lossless editing master; README playback uses the GIF.
 run(*ffmpeg, '-c:v', 'libx264rgb', '-crf', '0', '-preset', 'medium',
     '-pix_fmt', 'rgb24', '-color_range', 'pc', '-colorspace', 'rgb',
