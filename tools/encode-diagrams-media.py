@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Encode the Diagrams PNG capture without an RGB -> YUV -> GIF round trip."""
+"""Encode a Manta intro PNG capture without an RGB -> YUV -> GIF round trip."""
 import argparse
 import hashlib
 import json
@@ -48,6 +48,7 @@ receipt = {
     'hyperframes': '0.8.38',
     'encoder_repository': 'https://github.com/woonyong-choi/manta-diagrams',
     'encoder_revision': run('git', 'rev-parse', 'HEAD').decode().strip(),
+    'encoder_sha256': sha(Path(__file__)),
     'composition': {key: value for key, value in json.loads((args.composition / 'inputs.json').read_text()).items()
                     if key in ['product', 'version', 'provenance']},
     'source_sha256': sha(args.composition / 'index.html'),
@@ -61,6 +62,14 @@ receipt = {
                    'source_background_rgb': paper, 'input_frames': 360},
     'outputs': [],
 }
+capture_path = args.frames / 'capture.json'
+if capture_path.exists():
+    capture = json.loads(capture_path.read_text())
+    samples = capture.pop('samples')
+    assert len(samples) == capture['frames'] == 360 and capture['all_frames_replay_ready'], 'Incomplete capture readiness evidence'
+    capture['replay_states'] = list({sample['shot']: sample for sample in samples}.values())
+    capture['receipt_sha256'] = sha(capture_path)
+    receipt['capture'] = capture
 for p, count in zip(outputs[:2], [360, 150]):
     probe = json.loads(run('ffprobe', '-v', 'error', '-count_frames', '-show_entries',
                           'stream=width,height,avg_frame_rate,nb_read_frames,pix_fmt,color_range,color_space,profile:format=duration',
@@ -72,12 +81,21 @@ for p, count in zip(outputs[:2], [360, 150]):
     boundary = run('ffmpeg', '-v', 'error', '-i', str(p), '-vf', f'select=eq(n\\,0)+eq(n\\,{count-1}),format=rgb24',
                    '-fps_mode', 'passthrough', '-f', 'rawvideo', '-')
     assert len(boundary) == stream['width'] * stream['height'] * 3 * 2, 'Missing boundary frame'
-    assert boundary[:len(boundary)//2] == boundary[len(boundary)//2:], 'Loop boundary changed'
+    first, last = boundary[:len(boundary)//2], boundary[len(boundary)//2:]
+    if p.suffix == '.mp4':
+        source_boundary = run(*ffmpeg, '-filter_complex', matte + ',select=eq(n\\,0)+eq(n\\,359)',
+                              '-fps_mode', 'passthrough', '-f', 'rawvideo', '-')
+        assert boundary == source_boundary, 'RGB master changed the captured boundary pixels'
+    else:
+        assert first == last, 'GIF loop boundary changed'
     if p.suffix == '.gif':
         assert b'NETSCAPE2.0\x03\x01\x00\x00\x00' in p.read_bytes(), 'GIF must loop indefinitely'
     receipt['outputs'].append({'file': p.name, 'bytes': p.stat().st_size, 'sha256': sha(p), **probe,
                                'decoded_background_rgb': paper, 'background_unique_colors': 1,
                                'background_region': [0, 0, stream['width'], 20],
-                               'background_frames_checked': count, 'first_last_pixels_equal': True})
+                               'background_frames_checked': count, 'first_last_pixels_equal': first == last,
+                               'first_last_changed_pixels': sum(first[i:i+3] != last[i:i+3] for i in range(0, len(first), 3)),
+                               'first_last_max_channel_delta': max(abs(a-b) for a, b in zip(first, last)),
+                               'boundary_matches_input': True if p.suffix == '.mp4' else None})
 outputs[2].write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt, indent=2))
