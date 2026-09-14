@@ -3,17 +3,17 @@
   "source_sha256": "b2f97d7a542727f08df161a01c829299507dcef1b9fc590b1eb3fa05cacd2104",
   "inputs_sha256": {
     "index.html": "b2f97d7a542727f08df161a01c829299507dcef1b9fc590b1eb3fa05cacd2104",
-    "assets/action.js": "740288a64a61fbcb3d3b85ef34ca14f72e6c62b096787eff09a7ec638a531977",
+    "assets/action.js": "6644c8bc3ce4294b95e1790651bdd2b14e134267105d890f3ae16c7fb076b91a",
     "assets/gsap.min.js": "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280",
     "assets/product.css": "338df49a701657e013257b7f1229c856bfb0b86cf2a0833e56ea8f8263505e2c",
     "index.motion.json": "d85942ba3f479ef3c1afe2759b7ffe6b0b8ad0bb46fa22c9aa3709e92b667b09",
-    "inputs.json": "340576c4d15974bb71676413a79bf2602b1f4d53724c0e11734a7ada5eaec4ac"
+    "inputs.json": "57bb486752ab47a43eedaeaa9b49fddd3b44de10bf9e3400281ab973df9e6cb6"
   },
   "outputs": [
     {
       "file": "manta-diagrams-intro-dark.mp4",
-      "bytes": 200674,
-      "sha256": "adf1488c1d29f99bcca15b1461ab6d78328635b1497de62d91c8d4cd9496b649",
+      "bytes": 204041,
+      "sha256": "a66edaf0e0d9a157966996c99f84f2c69e2264989800cb74e0a479e657d8b4d0",
       "programs": [],
       "stream_groups": [],
       "streams": [
@@ -29,8 +29,8 @@
     },
     {
       "file": "manta-diagrams-intro-dark.gif",
-      "bytes": 449701,
-      "sha256": "b4a8fcec74f09c33339e1f09d71d7585f239e6f2ec317ee64c8cee998b06db39",
+      "bytes": 449536,
+      "sha256": "560e7c5fd0ebec12be9a5ac9dfb93d5f199ed4a74cfd0b9d61bdec6750ebac67",
       "programs": [],
       "stream_groups": [],
       "streams": [
@@ -44,5 +44,21 @@
         "duration": "6.000000"
       }
     }
-  ]
+  ],
+  "renderer_revision": "48a01e28ba450d29310e9d89559b0e680ec8671e",
+  "validation": {
+    "lint_errors": 0,
+    "runtime_errors": 0,
+    "motion_errors": 0,
+    "contrast_checks_passed": 60,
+    "contrast_checks_total": 60,
+    "layout_warnings": 2,
+    "layout_review": "Loop connector heuristic warnings inspected in both themes; all four connectors visibly meet their nodes.",
+    "browser_playback_observed": true,
+    "native_recording": false,
+    "gif_frames": 150,
+    "gif_infinite_loop": true,
+    "loop_boundary_mean_channel_difference_255": 0.07283333333333333,
+    "loop_boundary_review": "First and last decoded GIF frames visually match. Encoding differences are not bit-exact."
+  }
 }

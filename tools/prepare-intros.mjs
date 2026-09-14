@@ -11,7 +11,9 @@ hostCss=hostCss.replace('--background-primary: #191919','--background-primary: #
 hostCss+=':root{--link-color:var(--interactive-accent);--background-modifier-border-focus:var(--interactive-accent);--background-modifier-border:var(--divider-color);--graph-line:var(--divider-color);--text-accent:var(--interactive-accent);--code-string:var(--text-normal);--code-value:var(--interactive-accent);--code-keyword:var(--interactive-accent)}html.theme-light{--text-faint:#62625f}';
 hostCss+='html.theme-dark{--text-faint:#a8a8a5;--text-on-accent:#0d1117}html.theme-light{--color-green:#23723a;--text-success:#23723a}@font-face{font-family:"Apple SD Gothic Neo";src:local("Apple SD Gothic Neo")}@font-face{font-family:"Noto Sans KR";src:local("Noto Sans KR")}';
 const products=[['calendar','Manta Calendar','A way back\nto the note.'],['graph','Manta Graph','Follow\nthe thread.'],['code-blocks','Manta Code Blocks','Read it.\nTry it.'],['diagrams','Manta Diagrams','Make the\nidea clear.']];
-for(const [slug,name,title] of products){
+const selected=process.argv[3];
+if(selected&&!products.some(([slug])=>slug===selected))throw new Error(`Unknown product: ${selected}`);
+for(const [slug,name,title] of products.filter(([slug])=>!selected||slug===selected)){
  const product=resolve(workspace,'manta-'+slug), packageJson=JSON.parse(await readFile(product+'/package.json','utf8'));
  const dir='.local/loops/'+slug;await mkdir(dir+'/assets',{recursive:true});
  const alias={product};if(slug==='calendar')alias.obsidian=product+'/tests/obsidian-runtime.ts';if(slug==='graph')alias.obsidian=product+'/tests/fixtures/obsidian.ts';

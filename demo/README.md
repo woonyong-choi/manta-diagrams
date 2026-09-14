@@ -21,4 +21,6 @@ DO_NOT_TRACK=1 HYPERFRAMES_NO_TELEMETRY=1 npx --yes hyperframes@0.8.38 render .l
 
 Repeat for `calendar`, `graph`, `code-blocks`, `diagrams` and their `-dark` variants. The Woon `demo-video` skill adds GIF encoding, output inspection and SHA-256 receipts. Each composition returns to its exact opening state at 5.6 seconds; the GIF loop count is zero (infinite). Production screen-reader labels and closed diagnostic details have no visible pixels and are omitted from replayed frames. Font size, host icons and framing are presentation choices.
 
+To rebuild one product's light and dark compositions, pass the sibling workspace and product slug: `npm run media:prepare -- .. diagrams`. This leaves the other products' generated compositions unchanged.
+
 This directory contains video sources, not a public website. Generated `.local/` compositions are not deployed. GSAP retains its own [license](assets/gsap-license.txt); HyperFrames is a build tool and is not bundled with the plugin.
