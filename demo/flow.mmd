@@ -1,0 +1,7 @@
+%% layout: flowchart
+flowchart LR
+  Source[Read the source] --> Check{Ready to use?}
+  Check -->|Yes| Note[Explain the idea]
+  Check -->|No| Review[Review the detail]
+  Review --> Source
+  Note --> Example[Try an example]

@@ -1,0 +1,12 @@
+import {readFile,stat} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const manifest=JSON.parse(await readFile('manifest.json','utf8'));
+const pkg=JSON.parse(await readFile('package.json','utf8'));
+const versions=JSON.parse(await readFile('versions.json','utf8'));
+assert.equal(manifest.id,'manta-diagrams');assert.equal(manifest.name,'Manta Diagrams');
+assert.equal(manifest.version,pkg.version);assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
+assert.equal(versions[pkg.version],manifest.minAppVersion);
+for(const file of ['main.js','styles.css','docs/third-party-notices.txt']) assert((await stat(file)).size>100);
+const bundle=await readFile('main.js','utf8');
+assert(!/require\(["'](?:fs|child_process|electron|node:)/.test(bundle));
+assert(!bundle.includes('/Users/'));console.log('Release metadata and assets verified: '+pkg.version);

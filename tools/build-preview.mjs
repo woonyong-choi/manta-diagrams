@@ -1,0 +1,14 @@
+import {build} from 'esbuild';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {examples} from '../src/examples.mjs';
+const report=JSON.parse(await readFile('.local/verification.json','utf8'));
+if(report.failures.length)throw new Error('먼저 npm test의 오류를 해결해야 합니다.');
+const payload={report:{types:report.types,complex:report.complex,boundary:report.boundary}};
+const urls={mermaid:'https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs','elkjs/lib/elk.bundled.js':'https://cdn.jsdelivr.net/npm/elkjs@0.11.0/lib/elk.bundled.js/+esm',d3:'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm','d3-sankey':'https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/+esm'};
+const bundle=await build({entryPoints:['src/preview.mjs'],bundle:true,write:false,format:'esm',minify:true,legalComments:'inline',plugins:[{name:'preview-dependencies',setup(b){b.onResolve({filter:/^(mermaid|elkjs\/lib\/elk.bundled.js|d3|d3-sankey)$/},args=>({path:urls[args.path],external:true}));b.onResolve({filter:/^preview-payload$/},()=>({path:'payload',namespace:'inline'}));b.onLoad({filter:/.*/,namespace:'inline'},()=>({contents:'export const payload='+JSON.stringify(payload).replace(/</g,'\\u003c'),loader:'js'}));}}]});
+const {themeCSS}=await import('../src/svg.mjs');
+const template=await readFile('src/preview.html','utf8');
+const html=template.replace('/*__THEME__*/',themeCSS).replace('/*__BUNDLE__*/',()=>bundle.outputFiles[0].text.replace(/<\/script/gi,'<\\/script'));
+if(Buffer.byteLength(html)>1000000)throw new Error('미리보기가 1 MB 제한을 넘었습니다.');
+const dest=process.argv[2]||'.local/preview.html';await mkdir(resolve(dest,'..'),{recursive:true});await writeFile(dest,html);console.log(JSON.stringify({file:resolve(dest),bytes:Buffer.byteLength(html),types:31}));

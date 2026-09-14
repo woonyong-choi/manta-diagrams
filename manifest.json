@@ -1,0 +1,10 @@
+{
+  "id": "manta-diagrams",
+  "name": "Manta Diagrams",
+  "version": "0.1.0",
+  "minAppVersion": "1.13.0",
+  "description": "Read Mermaid diagrams in a focused viewer with pan, zoom, SVG export and optional document layouts.",
+  "author": "Woonyong Choi",
+  "authorUrl": "https://github.com/woonyong-choi",
+  "isDesktopOnly": true
+}

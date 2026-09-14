@@ -1,0 +1,17 @@
+.manta-diagrams-modal{width:min(1200px,94vw);max-width:94vw}
+.manta-reader{color:var(--text-normal,#292e37);background:var(--background-primary,#f6f7f8);border-radius:8px;padding:12px;min-width:0;box-sizing:border-box}
+.manta-reader-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.manta-reader-tools button,.manta-open-diagram{font:inherit;font-size:12px;min-height:32px;border:1px solid var(--background-modifier-border,#bfc5cf);border-radius:5px;background:var(--background-secondary,#e9edf1);color:inherit;padding:4px 10px;cursor:pointer}
+.manta-reader-tools button:focus-visible,.manta-reader-stage:focus-visible,.manta-open-diagram:focus-visible{outline:2px solid var(--interactive-accent,#ba522c);outline-offset:3px}
+.manta-reader-tools button:disabled{opacity:.45;cursor:default}
+.manta-reader-status{font-size:12px;line-height:1.6;color:var(--text-muted,#566273);margin:10px 0}
+.manta-reader-stage{height:min(62vh,650px);min-height:250px;width:100%;overflow:hidden;border:1px solid var(--background-modifier-border,#bfc5cf);border-radius:6px;background:var(--md-paper);cursor:grab;touch-action:none;position:relative}
+.manta-reader-stage.is-dragging{cursor:grabbing}
+.manta-reader-stage>svg{display:block;width:100%;height:100%;max-width:none!important}
+.manta-reader-source{font-size:12px;margin-top:12px}
+.manta-reader-source summary{cursor:pointer;min-height:28px}
+.manta-reader-source pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:30vh;overflow:auto;padding:12px;background:var(--background-secondary,#e9edf1);border-radius:5px}
+.manta-reader-error{padding:16px;font-size:13px;overflow-wrap:anywhere}
+.manta-open-diagram{display:block;margin:8px auto}
+@media(max-width:600px){.manta-reader{padding:8px}.manta-reader-tools button{font-size:11px;padding:4px 8px}.manta-reader-stage{height:55vh}}
+@media(prefers-reduced-motion:reduce){.manta-reader *{scroll-behavior:auto}}

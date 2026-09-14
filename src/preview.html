@@ -1,0 +1,47 @@
+<div id="mermaid-design-preview">
+  <div class="viz-controls">
+    <label class="form-label">다이어그램<select id="md-example" class="form-select"></select></label>
+    <label class="form-label">사례<select id="md-case" class="form-select"><option value="complex">복잡한 사례</option><option value="basic">기본 사례</option><option value="boundary">오류 사례</option></select></label>
+    <label class="form-label">테마<select id="md-theme" class="form-select"><option value="auto">앱 설정</option><option value="light">라이트</option><option value="dark">다크</option></select></label>
+  </div>
+  <div class="text-small" id="md-purpose"></div>
+  <div class="viz-row md-actions">
+    <button type="button" class="btn" id="md-fit">전체 보기</button>
+    <button type="button" class="btn" id="md-read">읽기 크기</button>
+    <button type="button" class="btn" id="md-out" aria-label="축소">−</button>
+    <button type="button" class="btn" id="md-in" aria-label="확대">+</button>
+    <span class="text-small" id="md-status" role="status" aria-live="polite">렌더러 불러오는 중…</span>
+  </div>
+  <p id="md-error" class="text-destructive" role="alert" hidden></p>
+  <div id="md-stage" class="md-surface" aria-label="다이어그램. 마우스로 끌어서 이동할 수 있습니다."></div>
+  <div id="md-map" class="md-surface" aria-hidden="true" hidden></div>
+  <div class="viz-row md-actions">
+    <label class="form-label" id="md-node-label">노드로 이동<select class="form-select" id="md-node"></select></label>
+    <span class="text-small" id="md-help">화면·전체 지도를 끌어서 이동 · 노드를 누르면 확대</span>
+  </div>
+  <details id="md-editor"><summary>Mermaid 원문 · 직접 수정</summary><label class="form-label" for="md-source">Mermaid 소스<textarea class="form-control" id="md-source" rows="12" spellcheck="false"></textarea></label></details>
+  <details id="md-checks"><summary id="md-check-summary">검증 결과</summary><button type="button" id="md-run-checks" class="btn">화면 검사 실행</button><pre id="md-check-output"></pre></details>
+  <div id="md-measure" class="md-surface" aria-hidden="true"></div>
+</div>
+<style>
+  /*__THEME__*/
+  #mermaid-design-preview [hidden]{display:none!important;}
+  #mermaid-design-preview .md-actions{margin-top:10px;margin-bottom:10px;}
+  #mermaid-design-preview #md-stage{height:520px;overflow:hidden;background:var(--md-paper);position:relative;touch-action:none;cursor:grab;}
+  #mermaid-design-preview :is(#md-stage,#md-map){touch-action:none;user-select:none;-webkit-user-select:none;}
+  #mermaid-design-preview :is(#md-stage,#md-map)[data-dragging],#mermaid-design-preview :is(#md-stage,#md-map)[data-dragging] [data-node]{cursor:grabbing;}
+  #mermaid-design-preview #md-stage>svg{width:100%;height:100%;}
+  #mermaid-design-preview #md-map{height:120px;background:var(--md-paper);cursor:grab;margin-top:4px;}
+  #mermaid-design-preview #md-map [data-node]{cursor:grab;}
+  #mermaid-design-preview #md-map>svg{width:100%;height:100%;}
+  #mermaid-design-preview #md-stage [data-node]:not([data-selected]) > rect:first-child[fill="var(--md-paper)"]{fill:color-mix(in srgb,var(--md-paper) 20%,var(--md-surface));}
+  #mermaid-design-preview #md-stage [data-selected]>rect:first-child,#mermaid-design-preview #md-stage [data-selected]>path:first-child,#mermaid-design-preview #md-stage [data-selected]>circle:first-child{fill:var(--md-tint);stroke:var(--md-accent);}
+  #mermaid-design-preview #md-measure{position:absolute;left:-100000px;top:0;visibility:hidden;pointer-events:none;}
+  #mermaid-design-preview details{margin-top:14px;}
+  #mermaid-design-preview pre{white-space:pre-wrap;overflow-wrap:anywhere;}
+  #mermaid-design-preview .md-diagram [data-node]{cursor:pointer;}
+  @media(max-width:500px){#mermaid-design-preview #md-stage{height:420px;}}
+</style>
+<script type="module">
+/*__BUNDLE__*/
+</script>
