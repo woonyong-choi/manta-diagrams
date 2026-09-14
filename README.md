@@ -39,6 +39,8 @@ Ordinary supported diagrams use Manta's document styling. Add `%% layout: loop` 
 
 Authored styling and links stay with bundled Mermaid; JavaScript callbacks are disabled. If Manta cannot represent an input, it tries standard Mermaid and explains the fallback. An invalid diagram shows the source and an error rather than an old result. ER diagrams use a compact horizontal layout unless the source specifies a direction.
 
+The tested mindmap `::icon(fa fa-book)` currently displays its node text and relationships without the book icon. External icon assets are not fetched.
+
 Everything runs locally. The plugin does not write notes, call an AI service or load its renderer from a CDN. [Compatibility and limits](docs/user-guide.md#compatibility) · [Verification record](docs/validation.md)
 
 ## A few useful views of the same work
