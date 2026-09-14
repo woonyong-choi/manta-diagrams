@@ -60,6 +60,13 @@ test('external styles and SVG resource URLs cannot load through the diagram', ()
   ]) assert.throws(()=>sanitizeSvg(`<svg>${body}</svg>`),/external|External/);
 });
 
+test('railroad middle baselines become numeric positions before HTML sanitization', () => {
+  const svg=sanitizeSvg('<svg><text x="30" y="22" font-size="14px" dominant-baseline="middle">+</text></svg>').querySelector('svg');
+  assert.equal(svg.querySelector('text').getAttribute('dominant-baseline'),null);
+  assert.equal(svg.querySelector('text').getAttribute('x'),'30');
+  assert.equal(svg.querySelector('text').getAttribute('y'),'25.5');
+});
+
 test('eventmodeling HTML labels retain bold, line breaks and centering across the host boundary', () => {
   const source = `<svg xmlns="http://www.w3.org/2000/svg"><g class="em-box"><foreignObject x="260" y="25" width="120" height="80"><div style="display:table;width:100%;height:100%"><span style="display:table-cell;text-align:center;vertical-align:middle"><b>장바구니</b><br/><code>item: UUID</code></span></div></foreignObject></g></svg>`;
   const hostSanitize = value => {

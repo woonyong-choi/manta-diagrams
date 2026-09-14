@@ -70,6 +70,19 @@ export function sanitizeSvg(source, {dark = false, hostSanitize} = {}) {
   ]}).data;
   const ready = new DOMParser().parseFromString(normalized, 'text/html').querySelector('svg');
   eventLabels(ready, palette);
+  // HTML sanitization does not retain dominant-baseline. For a numeric SVG
+  // text position, the middle baseline is half the font's x-height below y.
+  for(const text of ready.querySelectorAll('text[dominant-baseline="middle"]')) {
+    const y=Number(text.getAttribute('y')||0);
+    if(!Number.isFinite(y))continue;
+    const size=parseFloat(text.getAttribute('font-size')||ready.getAttribute('font-size'))||15;
+    let offset=size*.25;
+    if(!/jsdom/i.test(window.navigator?.userAgent||'')) {
+      const context=document.createElement('canvas').getContext('2d');
+      if(context){context.font=`${text.getAttribute('font-weight')||400} ${size}px ${text.getAttribute('font-family')||fontFamily}`;const ascent=context.measureText('x').actualBoundingBoxAscent;if(ascent>0)offset=ascent/2;}
+    }
+    text.setAttribute('y',String(y+offset));text.removeAttribute('dominant-baseline');
+  }
   ready.querySelectorAll('style').forEach(node => node.remove());
   ready.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
   ready.setAttribute('font-family', fontFamily);
