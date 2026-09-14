@@ -46,7 +46,10 @@ run(*ffmpeg, '-filter_complex', matte + ',fps=25,scale=1200:-1:flags=lanczos,for
 
 receipt = {
     'hyperframes': '0.8.38',
-    'source_revision': run('git', 'rev-parse', 'HEAD').decode().strip(),
+    'encoder_repository': 'https://github.com/woonyong-choi/manta-diagrams',
+    'encoder_revision': run('git', 'rev-parse', 'HEAD').decode().strip(),
+    'composition': {key: value for key, value in json.loads((args.composition / 'inputs.json').read_text()).items()
+                    if key in ['product', 'version', 'provenance']},
     'source_sha256': sha(args.composition / 'index.html'),
     'inputs_sha256': {str(p.relative_to(args.composition)): sha(p) for p in sorted(args.composition.rglob('*'))
                      if p.is_file() and (p.parent.name == 'assets' or p.name in ['index.html', 'index.motion.json', 'inputs.json'])},
