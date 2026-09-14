@@ -8,25 +8,41 @@ const purifier = createDOMPurify(window);
 // htmlLabels:false. Obsidian strips their HTML children; keep this one renderer's
 // text as SVG, retaining each line and its bold/monospace runs.
 function eventLabels(svg, palette) {
+  const context=/jsdom/i.test(window.navigator?.userAgent||'')?null:document.createElement('canvas').getContext('2d');
   for (const box of svg.querySelectorAll('.em-box foreignObject')) {
     const rows=[[]];
     const collect=(node,bold=false,mono=false)=>{
-      if(node.nodeType===3){rows.at(-1).push({text:node.textContent,bold,mono});return;}
+      if(node.nodeType===3){
+        const lines=mono?node.textContent.split(/\r?\n/):[node.textContent];
+        lines.forEach((text,i)=>{if(i)rows.push([]);rows.at(-1).push({text,bold,mono});});return;
+      }
       if(node.nodeType!==1)return;
       if(node.localName==='br'){rows.push([]);return;}
       if(!['div','span','b','code'].includes(node.localName)) throw new Error('This event label uses unsupported HTML.');
       for(const child of node.childNodes)collect(child,bold||node.localName==='b',mono||node.localName==='code');
     };
     for(const child of box.childNodes)collect(child);
+    while(rows.length>1&&rows.at(-1).every(run=>!run.text.trim()))rows.pop();
     const [x,y,width,height]=['x','y','width','height'].map(name=>Number(box.getAttribute(name)));
-    const size=parseFloat(svg.getAttribute('font-size'))||15, step=size*1.5;
-    if(![x,y,width,height].every(Number.isFinite)||width<=0||height<rows.length*step)throw new Error('This event label needs more room. Review its source.');
+    const size=parseFloat(svg.getAttribute('font-size'))||15;
+    const metrics=rows.map(row=>row.reduce((line,run)=>{
+      if(!context)return line;
+      context.font=`${run.bold?700:400} ${size}px ${run.mono?'ui-monospace, monospace':fontFamily}`;
+      const metric=context.measureText(run.text||'Mg');
+      line.width+=run.text?metric.width:0;
+      line.ascent=Math.max(line.ascent,metric.fontBoundingBoxAscent??metric.actualBoundingBoxAscent);
+      line.descent=Math.max(line.descent,metric.fontBoundingBoxDescent??metric.actualBoundingBoxDescent);
+      return line;
+    },{width:0,ascent:size*.8,descent:size*.2}));
+    const ascent=Math.max(...metrics.map(line=>line.ascent)),descent=Math.max(...metrics.map(line=>line.descent));
+    const step=Math.max(size*1.5,ascent+descent),contentHeight=(rows.length-1)*step+ascent+descent;
+    if(![x,y,width,height].every(Number.isFinite)||width<=0||height<contentHeight||metrics.some(line=>line.width>width+.5))throw new Error('This event label needs more room. Review its source.');
     const make=(tag,attrs)=>{const node=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [key,value]of Object.entries(attrs))node.setAttribute(key,String(value));return node;};
     const group=make('g',{'data-event-label':'','data-x':x,'data-y':y,'data-width':width,'data-height':height});
     if(box.hasAttribute('transform'))group.setAttribute('transform',box.getAttribute('transform'));
     rows.forEach((row,i)=>{
       const left=row.length&&row.every(run=>run.mono);
-      const text=make('text',{x:left?x:x+width/2,y:y+height/2+(i-(rows.length-1)/2)*step+size*.35,
+      const text=make('text',{x:left?x:x+width/2,y:y+(height-contentHeight)/2+ascent+i*step,
         'text-anchor':left?'start':'middle','font-size':size,fill:palette.ink,'xml:space':'preserve'});
       for(const run of row){const span=make('tspan',{'font-weight':run.bold?700:400,...(run.mono?{'font-family':'ui-monospace, monospace'}:{})});span.textContent=run.text;text.append(span);}
       group.append(text);

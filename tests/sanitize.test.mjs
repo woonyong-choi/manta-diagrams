@@ -101,3 +101,13 @@ test('eventmodeling HTML labels retain bold, line breaks and centering across th
     const fragment=hostSanitize(value);fragment.querySelector('tspan').textContent='';return fragment;
   }}),/labels/);
 });
+
+test('event fields keep literal newlines without reserving a trailing blank line', () => {
+  const source='<svg><g class="em-box"><foreignObject x="10" y="20" width="390" height="134"><div><span><b>ValidateDocument</b><br/><br/><code>description: 원본 문서의 변경 이력<br/>sourceDocumentPath: public/sample-note.md<br/>revisionHash: sample-revision-001\nverified: true<br/></code></span></div></foreignObject></g></svg>';
+  const svg=sanitizeSvg(source).querySelector('svg');
+  const rows=[...svg.querySelectorAll('[data-event-label] text')];
+  assert.deepEqual(rows.map(row=>row.textContent),['ValidateDocument','','description: 원본 문서의 변경 이력','sourceDocumentPath: public/sample-note.md','revisionHash: sample-revision-001','verified: true']);
+  assert(Number(rows[0].getAttribute('y'))>=20);
+  assert(Number(rows.at(-1).getAttribute('y'))<=154);
+  assert.throws(()=>sanitizeSvg(source.replace('height="134"','height="100"')),/needs more room/);
+});
