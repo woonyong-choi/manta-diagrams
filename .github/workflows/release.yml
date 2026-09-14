@@ -1,0 +1,63 @@
+name: Prepare Obsidian release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact manifest version
+        required: true
+
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Require main and successful CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$GITHUB_REF" = refs/heads/main
+          conclusion="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&event=push&status=completed&per_page=1" --jq '.workflow_runs[0].conclusion')"
+          test "$conclusion" = success
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run verify:release
+      - name: Verify version and preserve existing releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          test "$(node -p 'JSON.parse(require("fs").readFileSync("manifest.json", "utf8")).version')" = "$REQUESTED_VERSION"
+          if gh release view "$REQUESTED_VERSION" >/dev/null 2>&1; then
+            echo "Release exists; preserve its assets and history." >&2
+            exit 1
+          fi
+      - name: Attest plugin assets
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          create-storage-record: false
+          subject-path: |
+            main.js
+            manifest.json
+            styles.css
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          gh release create "$REQUESTED_VERSION" --draft --generate-notes \
+            --target "$GITHUB_SHA" main.js manifest.json styles.css
