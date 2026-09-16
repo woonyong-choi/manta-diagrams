@@ -33,7 +33,7 @@ A `%% layout:` hint selects a particular Manta layout. **Original view** compare
 
 The first release targets Obsidian desktop 1.13.0+. Mobile Obsidian is not supported by this release. A responsive browser preview is not a substitute for testing the mobile app.
 
-Standard diagrams use Mermaid 11.17.2 with strict security. Authored styles, links and directives use the standard renderer. JavaScript click callbacks are never bound. Ordinary HTTPS, mail and Obsidian links are user-activated. Complex HTML labels may be limited by the host sanitizer; missing labels are reported as a rendering error.
+Standard diagrams use Mermaid 11.17.2 with strict security. Authored styles, links and directives use the standard renderer. JavaScript click callbacks are never bound. HTTPS, mail and Obsidian note-opening links (`obsidian://open?...`) are user-activated; other custom protocols are not supported. Complex HTML labels may be limited by the host sanitizer; missing labels or links are reported as a rendering error.
 
 The tested mindmap `::icon(fa fa-book)` retains its node text and relationships, but its book icon is currently not drawn. External icon assets are not fetched.
 

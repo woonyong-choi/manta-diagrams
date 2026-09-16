@@ -1,6 +1,11 @@
 import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 import {render, verify} from './renderer.mjs';
 import {mermaidTheme, palettes, fontFamily} from './theme.mjs';
+import {keepNoteLink} from './sanitize.mjs';
+
+// The bundled Mermaid instance sanitizes SVG before our own host boundary.
+DOMPurify.addHook('uponSanitizeAttribute', keepNoteLink);
 
 let queue = Promise.resolve();
 

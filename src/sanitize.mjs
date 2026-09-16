@@ -4,6 +4,14 @@ import {palettes, fontFamily} from './theme.mjs';
 
 const purifier = createDOMPurify(window);
 
+// DOMPurify does not recognize Obsidian's note-opening scheme. Preserve only
+// user-activated anchors; commands, embedded resources and other schemes stay blocked.
+export function keepNoteLink(node, attribute) {
+  if (node.localName === 'a' && /^(?:href|xlink:href)$/.test(attribute.attrName)
+    && /^obsidian:\/\/open(?:\?|$)/i.test(attribute.attrValue)) attribute.forceKeepAttr = true;
+}
+purifier.addHook('uponSanitizeAttribute', keepNoteLink);
+
 // Mermaid eventmodeling always emits div/span/b/br/code labels, even with
 // htmlLabels:false. Obsidian strips their HTML children; keep this one renderer's
 // text as SVG, retaining each line and its bold/monospace runs.
@@ -112,10 +120,10 @@ export function sanitizeSvg(source, {dark = false, hostSanitize} = {}) {
   const result = hostSanitize ? hostSanitize(ready.outerHTML) : document.createDocumentFragment();
   if (!hostSanitize) result.append(ready);
   const after = result.querySelector('svg');
-  const elements = 'rect,path,text,tspan,circle,ellipse,line,polyline,polygon,marker';
+  const elements = 'rect,path,text,tspan,circle,ellipse,line,polyline,polygon,marker,a';
   const beforeNodes = [...ready.querySelectorAll(elements)], afterNodes = [...after?.querySelectorAll(elements) || []];
   if (beforeNodes.length !== afterNodes.length) throw new Error('Some diagram elements could not be displayed safely.');
-  const attributes = ['fill','stroke','stroke-width','stroke-dasharray','fill-opacity','stroke-opacity','opacity','font-family','font-size','font-weight','text-anchor','dominant-baseline','marker-start','marker-end','vector-effect'];
+  const attributes = ['fill','stroke','stroke-width','stroke-dasharray','fill-opacity','stroke-opacity','opacity','font-family','font-size','font-weight','text-anchor','dominant-baseline','marker-start','marker-end','vector-effect','href','xlink:href'];
   for (const [index,node] of beforeNodes.entries()) for (const name of attributes) {
     if (node.hasAttribute(name) && node.getAttribute(name) !== afterNodes[index].getAttribute(name)) {
       throw new Error(`The host removed a required diagram attribute: ${name}.`);

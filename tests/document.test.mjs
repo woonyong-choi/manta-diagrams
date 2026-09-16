@@ -2,7 +2,7 @@ import {test, mock} from 'node:test';
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<!doctype html><html><body></body></html>', {pretendToBeVisual:true});
-for (const name of ['window','document','DOMParser','HTMLElement','SVGElement','Element','Node']) globalThis[name] = dom.window[name];
+for (const name of ['window','document','DOMParser','HTMLElement','SVGElement','Element','Node','CSSStyleSheet']) globalThis[name] = dom.window[name];
 const {diagramAt, renderDocument, diagramViewport} = await import('../src/document.mjs');
 const {default: mermaid} = await import('mermaid');
 
@@ -80,4 +80,21 @@ test('authored styles and links remain with standard Mermaid and keep the exact 
     assert.equal(rendered.at(-1), source);
     assert(result.notice.includes('standard Mermaid'));
   } finally {stub.mock.restore();}
+});
+
+test('standard Mermaid preserves note-opening links without enabling callbacks', async () => {
+  // jsdom has no SVG layout; geometry is not the subject of this link regression.
+  dom.window.SVGElement.prototype.getBBox = () => ({x:0,y:0,width:80,height:24});
+  dom.window.SVGElement.prototype.getComputedTextLength = () => 80;
+  try {
+    const result = await renderDocument('flowchart LR\n A[Open note] --> B[Blocked]\n click A "obsidian://open?vault=Example&file=Start"\n click B "javascript:alert(1)"', {id:'note-links'});
+    const svg = new DOMParser().parseFromString(result.svg, 'text/html');
+    const links = [...svg.querySelectorAll('a')].map(a => a.getAttribute('href') || a.getAttribute('xlink:href'));
+    assert(links.includes('obsidian://open?vault=Example&file=Start'));
+    assert(!links.some(href => /^javascript:/i.test(href || '')));
+    assert.equal(mermaid.mermaidAPI.getConfig().securityLevel, 'strict');
+  } finally {
+    delete dom.window.SVGElement.prototype.getBBox;
+    delete dom.window.SVGElement.prototype.getComputedTextLength;
+  }
 });

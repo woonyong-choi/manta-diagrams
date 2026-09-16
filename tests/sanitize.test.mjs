@@ -68,6 +68,19 @@ test('external styles and SVG resource URLs cannot load through the diagram', ()
   ]) assert.throws(()=>sanitizeSvg(`<svg>${body}</svg>`),/external|External/);
 });
 
+test('only note-opening Obsidian anchors survive both sanitization boundaries', () => {
+  const source = '<svg><a href="obsidian://open?vault=Example&amp;file=Start"><text>Open</text></a><a href="javascript:alert(1)"><text>Blocked</text></a><a href="obsidian://advanced-uri?command=run"><text>Command</text></a><image href="obsidian://open?vault=Example"/></svg>';
+  const svg = sanitizeSvg(source).querySelector('svg');
+  assert.equal(svg.querySelector('a').getAttribute('href'),'obsidian://open?vault=Example&file=Start');
+  assert.equal(svg.querySelectorAll('a[href]').length,1);
+  assert.equal(svg.querySelector('image[href]'),null);
+  assert.throws(() => sanitizeSvg(source,{hostSanitize:value=>{
+    const fragment=document.createRange().createContextualFragment(value);
+    fragment.querySelector('a').removeAttribute('href');
+    return fragment;
+  }}), /required diagram attribute: href/);
+});
+
 test('railroad middle baselines become numeric positions before HTML sanitization', () => {
   const svg=sanitizeSvg('<svg><text x="30" y="22" font-size="14px" dominant-baseline="middle">+</text></svg>').querySelector('svg');
   assert.equal(svg.querySelector('text').getAttribute('dominant-baseline'),null);
