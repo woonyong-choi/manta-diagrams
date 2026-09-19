@@ -1,0 +1,139 @@
+import createDOMPurify from 'dompurify';
+import {optimize} from 'svgo/browser';
+import {palettes, fontFamily} from './theme.mjs';
+
+const purifier = createDOMPurify(window);
+
+// DOMPurify does not recognize Obsidian's note-opening scheme. Preserve only
+// user-activated anchors; commands, embedded resources and other schemes stay blocked.
+export function keepNoteLink(node, attribute) {
+  if (node.localName === 'a' && /^(?:href|xlink:href)$/.test(attribute.attrName)
+    && /^obsidian:\/\/open(?:\?|$)/i.test(attribute.attrValue)) attribute.forceKeepAttr = true;
+}
+purifier.addHook('uponSanitizeAttribute', keepNoteLink);
+
+// Mermaid eventmodeling always emits div/span/b/br/code labels, even with
+// htmlLabels:false. Obsidian strips their HTML children; keep this one renderer's
+// text as SVG, retaining each line and its bold/monospace runs.
+function eventLabels(svg, palette) {
+  const context=/jsdom/i.test(window.navigator?.userAgent||'')?null:document.createElement('canvas').getContext('2d');
+  for (const box of svg.querySelectorAll('.em-box foreignObject')) {
+    const rows=[[]];
+    const collect=(node,bold=false,mono=false)=>{
+      if(node.nodeType===3){
+        const lines=mono?node.textContent.split(/\r?\n/):[node.textContent];
+        lines.forEach((text,i)=>{if(i)rows.push([]);rows.at(-1).push({text,bold,mono});});return;
+      }
+      if(node.nodeType!==1)return;
+      if(node.localName==='br'){rows.push([]);return;}
+      if(!['div','span','b','code'].includes(node.localName)) throw new Error('This event label uses unsupported HTML.');
+      for(const child of node.childNodes)collect(child,bold||node.localName==='b',mono||node.localName==='code');
+    };
+    for(const child of box.childNodes)collect(child);
+    while(rows.length>1&&rows.at(-1).every(run=>!run.text.trim()))rows.pop();
+    const [x,y,width,height]=['x','y','width','height'].map(name=>Number(box.getAttribute(name)));
+    const size=parseFloat(svg.getAttribute('font-size'))||15;
+    const metrics=rows.map(row=>row.reduce((line,run)=>{
+      if(!context)return line;
+      context.font=`${run.bold?700:400} ${size}px ${run.mono?'ui-monospace, monospace':fontFamily}`;
+      const metric=context.measureText(run.text||'Mg');
+      line.width+=run.text?metric.width:0;
+      line.ascent=Math.max(line.ascent,metric.fontBoundingBoxAscent??metric.actualBoundingBoxAscent);
+      line.descent=Math.max(line.descent,metric.fontBoundingBoxDescent??metric.actualBoundingBoxDescent);
+      return line;
+    },{width:0,ascent:size*.8,descent:size*.2}));
+    const ascent=Math.max(...metrics.map(line=>line.ascent)),descent=Math.max(...metrics.map(line=>line.descent));
+    const step=Math.max(size*1.5,ascent+descent),contentHeight=(rows.length-1)*step+ascent+descent;
+    if(![x,y,width,height].every(Number.isFinite)||width<=0||height<contentHeight||metrics.some(line=>line.width>width+.5))throw new Error('This event label needs more room. Review its source.');
+    const make=(tag,attrs)=>{const node=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [key,value]of Object.entries(attrs))node.setAttribute(key,String(value));return node;};
+    const group=make('g',{'data-event-label':'','data-x':x,'data-y':y,'data-width':width,'data-height':height});
+    if(box.hasAttribute('transform'))group.setAttribute('transform',box.getAttribute('transform'));
+    rows.forEach((row,i)=>{
+      const left=row.length&&row.every(run=>run.mono);
+      const text=make('text',{x:left?x:x+width/2,y:y+(height-contentHeight)/2+ascent+i*step,
+        'text-anchor':left?'start':'middle','font-size':size,fill:palette.ink,'xml:space':'preserve'});
+      for(const run of row){const span=make('tspan',{'font-weight':run.bold?700:400,...(run.mono?{'font-family':'ui-monospace, monospace'}:{})});span.textContent=run.text;text.append(span);}
+      group.append(text);
+    });
+    box.replaceWith(group);
+  }
+}
+
+/** Preserve SVG presentation while rejecting active content and external assets. */
+export function sanitizeSvg(source, {dark = false, hostSanitize} = {}) {
+  const palette = palettes[dark ? 'dark' : 'light'];
+  source = source.replace(/var\(--md-([a-z0-9]+)\)/g, (value, role) => palette[role] || value);
+  const fragment = purifier.sanitize(source, {
+    RETURN_DOM_FRAGMENT: true,
+    USE_PROFILES: {html: true, svg: true, svgFilters: true, mathMl: true},
+    ADD_TAGS: ['foreignObject'],
+    HTML_INTEGRATION_POINTS: {foreignobject: true},
+    FORBID_TAGS: ['script','iframe','object','embed','link','base','meta','form','input','button','video','audio','source'],
+    FORBID_ATTR: ['src','srcset'],
+  });
+  const svg = fragment.querySelector('svg');
+  if (!svg) throw new Error('No safe SVG was produced.');
+  for (const node of [svg, ...svg.querySelectorAll('*')]) {
+    for (const name of ['href','xlink:href']) {
+      const href = node.getAttribute(name);
+      if (href && !/^#[\w:.-]+$/.test(href)
+        && !(node.localName === 'a' && /^(https?:|mailto:|obsidian:)/i.test(href))) node.removeAttribute(name);
+    }
+    const css = (node.localName === 'style' ? node.textContent : node.getAttribute('style') || '')
+      + ['fill','stroke','filter','clip-path','mask','cursor','marker-start','marker-mid','marker-end'].map(name => node.getAttribute(name) || '').join(';');
+    if (/\\|@import\b|@font-face\b|image-set\s*\(/i.test(css)) throw new Error('This diagram uses unsupported external or escaped styles.');
+    for (const match of css.matchAll(/url\s*\(([^)]*)\)/gi)) {
+      if (!/^#[\w:.-]+$/.test(match[1].trim().replace(/^['"]|['"]$/g, ''))) throw new Error('External diagram assets are not loaded.');
+    }
+    // Mermaid may emit invalid placeholders such as "undefined;;;undefined".
+    // Let the browser discard invalid declarations before SVGO resolves the cascade.
+    if(node.hasAttribute('style')) {
+      const valid=node.style.cssText;
+      if(valid)node.setAttribute('style',valid);else node.removeAttribute('style');
+    }
+  }
+  // Keep geometry/IDs intact. Inline CSS using its cascade, then express paint
+  // as SVG attributes so Obsidian's HTML sanitizer need not retain styles.
+  const normalized = optimize(new window.XMLSerializer().serializeToString(svg), {plugins: [
+    {name:'inlineStyles',params:{onlyMatchedOnce:false,removeMatchedSelectors:false}},
+    {name:'convertStyleToAttrs',params:{keepImportant:false}},
+  ]}).data;
+  const ready = new DOMParser().parseFromString(normalized, 'text/html').querySelector('svg');
+  eventLabels(ready, palette);
+  // HTML sanitization does not retain dominant-baseline. For a numeric SVG
+  // text position, the middle baseline is half the font's x-height below y.
+  for(const text of ready.querySelectorAll('text[dominant-baseline="middle"]')) {
+    const y=Number(text.getAttribute('y')||0);
+    if(!Number.isFinite(y))continue;
+    const size=parseFloat(text.getAttribute('font-size')||ready.getAttribute('font-size'))||15;
+    let offset=size*.25;
+    if(!/jsdom/i.test(window.navigator?.userAgent||'')) {
+      const context=document.createElement('canvas').getContext('2d');
+      if(context){context.font=`${text.getAttribute('font-weight')||400} ${size}px ${text.getAttribute('font-family')||fontFamily}`;const ascent=context.measureText('x').actualBoundingBoxAscent;if(ascent>0)offset=ascent/2;}
+    }
+    text.setAttribute('y',String(y+offset));text.removeAttribute('dominant-baseline');
+  }
+  ready.querySelectorAll('style').forEach(node => node.remove());
+  ready.querySelectorAll('[style]').forEach(node => node.removeAttribute('style'));
+  ready.setAttribute('font-family', fontFamily);
+  ready.querySelectorAll('[data-edge]').forEach(edge => edge.removeAttribute('vector-effect'));
+  const result = hostSanitize ? hostSanitize(ready.outerHTML) : document.createDocumentFragment();
+  if (!hostSanitize) result.append(ready);
+  const after = result.querySelector('svg');
+  const elements = 'rect,path,text,tspan,circle,ellipse,line,polyline,polygon,marker,a';
+  const beforeNodes = [...ready.querySelectorAll(elements)], afterNodes = [...after?.querySelectorAll(elements) || []];
+  if (beforeNodes.length !== afterNodes.length) throw new Error('Some diagram elements could not be displayed safely.');
+  const attributes = ['fill','stroke','stroke-width','stroke-dasharray','fill-opacity','stroke-opacity','opacity','font-family','font-size','font-weight','text-anchor','dominant-baseline','marker-start','marker-end','vector-effect','href','xlink:href'];
+  for (const [index,node] of beforeNodes.entries()) for (const name of attributes) {
+    if (node.hasAttribute(name) && node.getAttribute(name) !== afterNodes[index].getAttribute(name)) {
+      throw new Error(`The host removed a required diagram attribute: ${name}.`);
+    }
+  }
+  const labels = element => [...element.querySelectorAll('text,foreignObject')].map(node => node.textContent).join('').replace(/\s+/g, '');
+  const original = new DOMParser().parseFromString(source, 'text/html').querySelector('svg');
+  if (labels(after) !== labels(original)) throw new Error('Some labels could not be displayed safely.');
+  // Only owned presentation is applied after the host boundary.
+  after.style.cssText = `display:block;max-width:none;filter:none;color:${palette.ink};font-family:${fontFamily}`;
+  after.querySelectorAll('[data-edge]').forEach(edge => edge.setAttribute('vector-effect', 'non-scaling-stroke'));
+  return result;
+}

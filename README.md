@@ -2,7 +2,7 @@
 
 [English](README.md) · [한국어](README.ko.md)
 
-Read Mermaid diagrams in a focused viewer. Make room for long labels, follow a connection and save an SVG without changing the source note.
+Read Mermaid diagrams with Manta's layout directly in your notes. Make room for long labels, open a focused viewer and save an SVG without changing the source note.
 
 **[User guide](docs/user-guide.md) · [Roadmap](ROADMAP.md)**
 
@@ -13,8 +13,8 @@ Version **0.1.0** · Obsidian **1.13.0+** · Desktop. Release candidate. Obsidia
 The Obsidian release is still being checked. For a local development build:
 
 1. Run the development commands below, then copy `main.js`, `manifest.json` and `styles.css` into `.obsidian/plugins/manta-diagrams/`. Enable **Manta Diagrams** in a test vault’s Community plugins.
-2. Keep a normal Mermaid block in your note. Put the cursor inside it.
-3. Run **Manta Diagrams: Open diagram under cursor**. Use **Fit**, **Reading size**, drag or zoom to inspect it. **Save SVG** exports the full diagram.
+2. Keep a normal Mermaid block in your note. Manta displays the diagram in Reading view and Live Preview without changing its source.
+3. Select **Open diagram**, or run **Manta Diagrams: Open diagram under cursor**. Use **Fit**, **Reading size**, drag or zoom to inspect it. **Save SVG** exports the full diagram.
 
 ````markdown
 ```mermaid
@@ -24,20 +24,22 @@ flowchart LR
 ```
 ````
 
-The original Mermaid block keeps Obsidian’s renderer. Manta adds a viewer button when the rendered block can be mapped back to its source. The command also accepts a selected diagram.
+The note body and focused viewer share the same renderer. **Original view** compares the original rendering without editing the note. The command also accepts a selected diagram. Disabling Manta returns ordinary `mermaid` blocks to Obsidian when the note is rendered again.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">
-  <img src="docs/assets/manta-diagrams-intro.gif" alt="Manta Diagrams: switch between a flowchart and a loop while keeping the same source" width="1200">
+  <img src="docs/assets/manta-diagrams-intro.gif" alt="Manta Diagrams: edit Mermaid labels and add or remove a connected step, then see the rendered result" width="1200">
 </picture>
 
-A six-second loop of the actual renderer: the source keeps the same nodes and connections while the layout changes. Timing is condensed.
+A six-second loop of source edits and the actual renderer's results: rename a label, add a connected step and remove it. This is a fixture with condensed timing, not a recording of native Obsidian or simulated node animation.
 
 ## Choose a layout when it helps
 
-Add `%% layout: loop` to a Mermaid flowchart for a circular layout, or `%% layout: flowchart` for Manta’s document styling. Use a `manta` fence to embed the viewer directly in a note. The source remains editable text.
+Ordinary supported diagrams use Manta's document styling. Add `%% layout: loop` to a Mermaid flowchart for a circular layout. Use a `manta` fence to embed the full viewer directly in a note. The source remains editable text.
 
-Ordinary diagrams use bundled Mermaid. Authored styling and links stay with Mermaid; JavaScript callbacks are disabled. If a special layout cannot represent an input, the viewer tries standard Mermaid and explains the fallback. An invalid diagram shows the source and an error rather than an old result.
+Authored styling and links stay with bundled Mermaid; JavaScript callbacks are disabled. If Manta cannot represent an input, it tries standard Mermaid and explains the fallback. An invalid diagram shows the source and an error rather than an old result. ER diagrams use a compact horizontal layout unless the source specifies a direction.
+
+The tested mindmap `::icon(fa fa-book)` currently displays its node text and relationships without the book icon. External icon assets are not fetched.
 
 Everything runs locally. The plugin does not write notes, call an AI service or load its renderer from a CDN. [Compatibility and limits](docs/user-guide.md#compatibility) · [Verification record](docs/validation.md)
 

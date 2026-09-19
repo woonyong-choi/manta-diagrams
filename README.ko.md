@@ -2,24 +2,26 @@
 
 [English](README.md) · 한국어
 
-Mermaid 도해를 넓은 화면에서 읽고, 연결선을 따라 이동하고, SVG로 저장합니다. 원본 노트는 그대로 둡니다.
+노트의 Mermaid 도해를 Manta 배치로 읽습니다. 긴 라벨을 확인하고, 전체 뷰어에서 이동·확대하거나 SVG로 저장할 수 있습니다. 원본 노트는 그대로 둡니다.
 
 **[사용 안내](docs/user-guide.md) · [개선 계획](ROADMAP.md)**
 
 **0.1.0 배포 후보** · Obsidian **1.13.0 이상** · 데스크톱. Obsidian 실행 검증과 Community 등록을 준비 중입니다.
 
 1. [개발 안내](README.md#development)에 따라 빌드한 `main.js`, `manifest.json`, `styles.css`를 시험 Vault의 `.obsidian/plugins/manta-diagrams/`에 넣고 Manta Diagrams를 활성화합니다.
-2. 노트의 Mermaid 블록 안에 커서를 둡니다.
-3. 명령 팔레트에서 **Manta Diagrams: Open diagram under cursor**를 실행합니다. 전체 보기, 읽기 크기, 이동·확대와 SVG 저장을 사용할 수 있습니다.
+2. 일반 `mermaid` 블록을 사용합니다. 읽기 화면과 Live Preview에서 원문을 바꾸지 않고 Manta 도해를 표시합니다.
+3. 도해의 **Open diagram**을 누르거나, 블록 안에 커서를 두고 **Manta Diagrams: Open diagram under cursor**를 실행합니다. **Fit**, **Reading size**, 이동·확대와 **Save SVG**를 사용할 수 있습니다.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">
-  <img src="docs/assets/manta-diagrams-intro.gif" alt="같은 Mermaid 원문을 흐름도와 순환도로 바꾸는 Manta Diagrams" width="1200">
+  <img src="docs/assets/manta-diagrams-intro.gif" alt="Mermaid 라벨을 수정하고 연결된 단계를 추가·삭제하면 실제 렌더러의 결과가 바뀌는 Manta Diagrams" width="1200">
 </picture>
 
-실제 렌더러가 만든 흐름도와 순환도를 6초 루프로 보여줍니다. 노드와 연결은 유지하며 배치만 바뀝니다.
+라벨 수정과 연결된 단계의 추가·삭제를 실제 렌더러 결과와 함께 6초 루프로 보여줍니다. 공개 예제의 편집 시간을 줄인 데모이며, Obsidian 실행 녹화나 노드 이동 애니메이션은 아닙니다.
 
-일반 Mermaid는 표준 렌더러로 읽습니다. 순환처럼 별도 배치가 필요할 때 `%% layout: loop` 주석을 넣어 Manta 레이아웃을 선택합니다. 작성자가 지정한 스타일과 링크는 표준 Mermaid로 처리하고, 특수 레이아웃을 적용할 수 없으면 이유와 함께 표준 화면을 시도합니다. 문법 오류가 있으면 이전 그림을 지우고 원문과 오류를 보여줍니다.
+지원되는 일반 Mermaid 입력에는 Manta 배치를 적용합니다. **Original view**로 같은 원문의 표준 Mermaid 보기를 비교할 수 있습니다. 순환 배치는 `%% layout: loop` 주석으로 선택합니다. 작성자가 지정한 스타일과 링크는 표준 Mermaid로 처리하고, 입력을 Manta로 표현할 수 없으면 이유와 함께 표준 화면을 시도합니다. 문법 오류가 있으면 이전 그림을 지우고 원문과 오류를 보여줍니다.
+
+Mindmap의 `::icon(fa fa-book)`은 현재 책 아이콘이 표시되지 않습니다. 원문과 노드의 글자·관계는 유지하며, 외부 아이콘 파일을 가져오지는 않습니다.
 
 플러그인은 노트를 수정하거나 AI를 호출하지 않습니다. 필요한 라이브러리를 함께 배포하므로 렌더링에 네트워크 연결이 필요하지 않습니다. [호환 범위](docs/user-guide.md#compatibility)와 [검증 기록](docs/validation.md)을 확인할 수 있습니다.
 

@@ -1,48 +1,117 @@
 {
   "hyperframes": "0.8.38",
-  "source_sha256": "b2f97d7a542727f08df161a01c829299507dcef1b9fc590b1eb3fa05cacd2104",
+  "source_revision": "66789b5ee61c4e3dbe0087e58a738aca3723cfff",
+  "source_sha256": "3739d1572975acf17192b5aedeed984e9de42b4ba23ed754dedc9e69c914cdda",
   "inputs_sha256": {
-    "index.html": "b2f97d7a542727f08df161a01c829299507dcef1b9fc590b1eb3fa05cacd2104",
-    "assets/action.js": "740288a64a61fbcb3d3b85ef34ca14f72e6c62b096787eff09a7ec638a531977",
+    "assets/action.js": "a77da995bc8d06345ad7dfb0062005103ee3f8cccad4cc9bb5f3e3327f711e50",
     "assets/gsap.min.js": "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280",
     "assets/product.css": "338df49a701657e013257b7f1229c856bfb0b86cf2a0833e56ea8f8263505e2c",
-    "index.motion.json": "d85942ba3f479ef3c1afe2759b7ffe6b0b8ad0bb46fa22c9aa3709e92b667b09",
-    "inputs.json": "340576c4d15974bb71676413a79bf2602b1f4d53724c0e11734a7ada5eaec4ac"
+    "index.html": "3739d1572975acf17192b5aedeed984e9de42b4ba23ed754dedc9e69c914cdda",
+    "index.motion.json": "86d5edabfc05b0dd57c2cb21e8bcccf1019d108788e69b7ec57a910507ad0c1b",
+    "inputs.json": "220870387133761a45db6a0a678f99d9c7afe886da02be52a4807e92e7d6b9c5"
+  },
+  "input_sequence_sha256": "636acfa534dea6f101e27a056d03f5d177fa3bc56d6eeb8c09bf5d6b393b9e02",
+  "encoding": {
+    "alpha_composite_rgb": [
+      13,
+      17,
+      23
+    ],
+    "mp4": "libx264rgb CRF 0, full-range RGB, sRGB transfer; editing master",
+    "gif": "PNG RGB -> 25fps/1200px -> full histogram palette -> no dither; infinite loop"
+  },
+  "validation": {
+    "native_recording": false,
+    "browser_playback_verified": false,
+    "source_background_rgb": [
+      13,
+      17,
+      23
+    ],
+    "input_frames": 360,
+    "lint_errors": 0,
+    "runtime_errors": 0,
+    "layout_issues": 0,
+    "layout_samples": 9,
+    "motion_errors": 0,
+    "contrast_checks_passed": 47,
+    "contrast_checks_total": 47,
+    "readme_width_checked": 800,
+    "minimum_label_size_assertion_px": 14,
+    "source_edit_changes_in_gif": 25,
+    "render_result_changes_in_gif": 5,
+    "input_timing": "Condensed fixture; render follows 300ms preview debounce. Native timing is not measured."
   },
   "outputs": [
     {
       "file": "manta-diagrams-intro-dark.mp4",
-      "bytes": 200674,
-      "sha256": "adf1488c1d29f99bcca15b1461ab6d78328635b1497de62d91c8d4cd9496b649",
+      "bytes": 282719,
+      "sha256": "80a87dd4808bfed668351666c78c5d0fe3f19c3c445d9ce008a70dcff8f1e155",
       "programs": [],
       "stream_groups": [],
       "streams": [
         {
+          "profile": "High 4:4:4 Predictive",
           "width": 1600,
           "height": 900,
-          "avg_frame_rate": "60/1"
+          "pix_fmt": "gbrp",
+          "color_range": "pc",
+          "color_space": "gbr",
+          "avg_frame_rate": "60/1",
+          "nb_read_frames": "360"
         }
       ],
       "format": {
         "duration": "6.000000"
-      }
+      },
+      "decoded_background_rgb": [
+        13,
+        17,
+        23
+      ],
+      "background_unique_colors": 1,
+      "background_frames_checked": 360,
+      "first_last_pixels_equal": true,
+      "background_region": [
+        0,
+        0,
+        1600,
+        20
+      ]
     },
     {
       "file": "manta-diagrams-intro-dark.gif",
-      "bytes": 449701,
-      "sha256": "b4a8fcec74f09c33339e1f09d71d7585f239e6f2ec317ee64c8cee998b06db39",
+      "bytes": 115083,
+      "sha256": "7cd53fd1eec3a855705d19092c40e29efe63751807ffb8e142bfdde22ba8e17b",
       "programs": [],
       "stream_groups": [],
       "streams": [
         {
           "width": 1200,
           "height": 675,
-          "avg_frame_rate": "25/1"
+          "pix_fmt": "bgra",
+          "avg_frame_rate": "25/1",
+          "nb_read_frames": "150"
         }
       ],
       "format": {
         "duration": "6.000000"
-      }
+      },
+      "decoded_background_rgb": [
+        13,
+        17,
+        23
+      ],
+      "background_unique_colors": 1,
+      "background_frames_checked": 150,
+      "first_last_pixels_equal": true,
+      "background_region": [
+        0,
+        0,
+        1200,
+        20
+      ],
+      "infinite_loop": true
     }
   ]
 }
