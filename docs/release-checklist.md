@@ -110,4 +110,24 @@ styles.css: ok (0건)
 ### 남은 일
 
 - draft → publish 전환은 사람이 한다(지시대로).
-- 구 draft(id 388456529) 삭제 여부는 여전히 미결.
+- 구 draft(id 388456529, 2026-09-14 옛 빌드) 삭제 완료 (2026-09-23, `gh api -X DELETE repos/woonyong-choi/manta-diagrams/releases/388456529` → `204 No Content`). 남은 draft는 id 394069500(태그 `0.1.0`) 하나뿐이며, `gh release view 0.1.0 --json id,tagName,isDraft,assets` 로 asset 3개·sha256이 위 표와 동일함을 재확인함.
+
+## 사람이 실행할 다음 단계 (자동 실행하지 않음)
+
+이 WP는 공개(publish)와 obsidian-releases PR을 수행하지 않는다. 위 검증이 모두 통과했다고 판단되면 아래를 사람이 직접 실행한다.
+
+1. draft 공개:
+   ```
+   gh release edit 0.1.0 --repo woonyong-choi/manta-diagrams --draft=false
+   ```
+2. Community Plugin 등록 PR (fork 기반):
+   ```
+   gh repo fork obsidianmd/obsidian-releases --clone=true -- <원하는 로컬 경로>
+   cd <원하는 로컬 경로>
+   # community-plugins.json 끝에 {"id": "manta-diagrams", "name": "Manta Diagrams", "author": "Woonyong Choi", "description": "<manifest.json의 description>", "repo": "woonyong-choi/manta-diagrams"} 추가 후 저장
+   git checkout -b add-manta-diagrams
+   git add community-plugins.json
+   git commit -m "Add Manta Diagrams plugin"
+   git push -u origin add-manta-diagrams
+   gh pr create --repo obsidianmd/obsidian-releases --title "Add Manta Diagrams" --body "Adds the Manta Diagrams plugin. See docs/release-checklist.md in woonyong-choi/manta-diagrams for verification steps." --base master
+   ```
