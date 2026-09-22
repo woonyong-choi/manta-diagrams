@@ -33,7 +33,10 @@ for(const [index,example]of corpus.entries()){
 }
 const flow=examples.find(e=>e.id==='flowchart');
 try{
-  const palette=Object.fromEntries([...themeCSS.matchAll(/--md-(\w+):light-dark\((#[\da-f]+),(#[\da-f]+)\)/g)].map(m=>[m[1],[m[2],m[3]]]));
+  // 팔레트 정본은 manta-tokens 다. themeCSS 는 그 시트를 싣기만 한다.
+  const {palettes}=await import('../src/theme.mjs');
+  assert(themeCSS.includes('--manta-bg')&&themeCSS.includes('--md-paper: var(--manta-bg)'),'themeCSS 가 manta 토큰 시트를 싣는다');
+  const palette=Object.fromEntries(Object.keys(palettes.light).map(key=>[key,[palettes.light[key],palettes.dark[key]]]));
   const luminance=hex=>hex.slice(1).match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
   for(const mode of [0,1])for(const background of ['paper','surface','tint','depth']){const a=luminance(palette.ink[mode]),b=luminance(palette[background][mode]);assert((Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5,`본문 대비: ${background} / ${mode}`);}
   const first=await render(flow.source,{id:'repeat'}),second=await render(flow.source,{id:'repeat'});assert.equal(first.svg,second.svg);

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {JSDOM} from 'jsdom';
+import {palettes} from '../src/theme.mjs';
 
 test('preview pointer interactions',async t=>{
   const template=await readFile(process.env.MANTA_PREVIEW_FRAGMENT||new URL('../src/preview.html',import.meta.url),'utf8');
@@ -112,7 +113,7 @@ test('preview pointer interactions',async t=>{
   });
   await t.test('ordinary nodes use the shared renderer surface without preview-only paint',()=>{
     reset();const boxes=[...stage.querySelectorAll('[data-node] > rect:first-child')];
-    assert(boxes.length>1);assert(boxes.every(box=>box.getAttribute('fill')==='#f6f8fa'));
+    assert(boxes.length>1);assert(boxes.every(box=>box.getAttribute('fill')===palettes.light.surface));
     assert.equal([...window.document.styleSheets].flatMap(sheet=>[...sheet.cssRules]).some(rule=>rule.selectorText?.includes('[data-node]:not([data-selected])')),false);
   });
   if(el('box-polish'))await t.test('comparison can turn box and minimap polish off and back on',()=>{

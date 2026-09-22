@@ -1,26 +1,122 @@
-.manta-diagrams-modal{width:min(1200px,94vw);max-width:94vw}
-.manta-reader{color:var(--md-ink);background:var(--md-paper);border-radius:8px;padding:12px;min-width:0;box-sizing:border-box}
-.manta-reader-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.manta-reader-tools button,.manta-open-diagram{font:inherit;font-size:12px;min-height:32px;border:1px solid var(--background-modifier-border,#bfc5cf);border-radius:5px;background:var(--background-secondary,#e9edf1);color:inherit;padding:4px 10px;cursor:pointer}
-.manta-reader-tools button:focus-visible,.manta-reader-stage:focus-visible,.manta-open-diagram:focus-visible{outline:2px solid var(--interactive-accent,#ba522c);outline-offset:3px}
-.manta-reader-tools button:disabled{opacity:.45;cursor:default}
-.manta-reader-tools button:has(svg){width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;padding:6px}
-.manta-reader-tools button[hidden]{display:none}
-.manta-reader-tools button svg{width:16px;height:16px;flex:none;stroke:currentColor;fill:none}
-.manta-reader-tools button[aria-pressed=true]{background:var(--background-modifier-hover,#d5dce4)}
-.manta-reader-status{font-size:12px;line-height:1.6;color:var(--text-muted,#566273);margin:10px 0}
-.manta-reader-stage{height:min(62vh,650px);min-height:250px;width:100%;overflow:hidden;border:1px solid var(--background-modifier-border,#bfc5cf);border-radius:6px;background:var(--md-paper);cursor:grab;touch-action:none;position:relative}
-.manta-reader-stage.is-dragging{cursor:grabbing}
-.manta-reader-stage>svg{display:block;width:100%;height:100%;max-width:none!important}
-.manta-inline{padding:8px 12px;margin:12px 0}
-.manta-inline .manta-reader-tools{justify-content:flex-end}
-.manta-inline .manta-reader-tools button{min-height:26px;font-size:11px;padding:2px 8px}
-.manta-inline .manta-reader-stage{min-height:160px;border:0;border-radius:0}
-.manta-reader-stage>svg{filter:none!important}
-.manta-reader-source{font-size:12px;margin-top:12px}
-.manta-reader-source summary{cursor:pointer;min-height:28px}
-.manta-reader-source pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:30vh;overflow:auto;padding:12px;background:var(--background-secondary,#e9edf1);border-radius:5px}
-.manta-reader-error{padding:16px;font-size:13px;overflow-wrap:anywhere}
-.manta-open-diagram{display:block;margin:8px auto}
-@media(max-width:600px){.manta-reader{padding:8px}.manta-reader-tools button{font-size:11px;padding:4px 8px}.manta-reader-stage{height:55vh}}
-@media(prefers-reduced-motion:reduce){.manta-reader *{scroll-behavior:auto}}
+/* 값은 manta-tokens 에서만 온다. 아래 선언 블록 밖에서는 리터럴 px·색·글꼴을 쓰지 않는다. */
+.manta-reader,
+.manta-diagrams-modal {
+  --manta-diagrams-modal-width: min(1200px, 94vw);
+  --manta-diagrams-stage-height: min(62vh, 650px);
+  --manta-diagrams-stage-min-height: 250px;
+  --manta-diagrams-inline-min-height: 160px;
+  --manta-diagrams-source-max-height: 30vh;
+  --manta-diagrams-compact: 600px;
+}
+
+.manta-diagrams-modal { width: var(--manta-diagrams-modal-width); max-width: 94vw; }
+
+.manta-reader {
+  color: var(--manta-text);
+  background: var(--manta-bg);
+  border-radius: var(--manta-radius-md);
+  padding: var(--manta-space-3);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.manta-reader-tools { display: flex; align-items: center; gap: var(--manta-space-2); flex-wrap: wrap; }
+
+.manta-reader-tools button,
+.manta-open-diagram {
+  font: inherit;
+  font-size: var(--manta-size-sm);
+  min-height: var(--manta-control-height);
+  border: var(--manta-line-thin) solid var(--manta-border);
+  border-radius: var(--manta-radius-sm);
+  background: var(--manta-surface);
+  color: inherit;
+  padding: var(--manta-space-1) var(--manta-space-3);
+  cursor: pointer;
+}
+
+.manta-reader-tools button:focus-visible,
+.manta-reader-stage:focus-visible,
+.manta-open-diagram:focus-visible {
+  outline: var(--manta-control-focus-width) solid var(--manta-accent);
+  outline-offset: var(--manta-control-focus-width);
+}
+
+.manta-reader-tools button:disabled { opacity: .45; cursor: default; }
+
+.manta-reader-tools button:has(svg) {
+  width: var(--manta-control-height);
+  height: var(--manta-control-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--manta-space-2);
+}
+
+.manta-reader-tools button[hidden] { display: none; }
+
+.manta-reader-tools button svg {
+  width: var(--manta-control-icon);
+  height: var(--manta-control-icon);
+  flex: none;
+  stroke: currentColor;
+  fill: none;
+}
+
+.manta-reader-tools button[aria-pressed=true] { background: var(--manta-surface-raised); }
+
+.manta-reader-status {
+  font-size: var(--manta-size-sm);
+  line-height: 1.6;
+  color: var(--manta-text-muted);
+  margin: var(--manta-space-3) 0;
+}
+
+.manta-reader-stage {
+  height: var(--manta-diagrams-stage-height);
+  min-height: var(--manta-diagrams-stage-min-height);
+  width: 100%;
+  overflow: hidden;
+  border: var(--manta-line-thin) solid var(--manta-border);
+  border-radius: var(--manta-radius-sm);
+  background: var(--manta-bg);
+  cursor: grab;
+  touch-action: none;
+  position: relative;
+}
+
+.manta-reader-stage.is-dragging { cursor: grabbing; }
+.manta-reader-stage > svg { display: block; width: 100%; height: 100%; max-width: none !important; filter: none !important; }
+
+.manta-inline { padding: var(--manta-space-2) var(--manta-space-3); margin: var(--manta-space-3) 0; }
+.manta-inline .manta-reader-tools { justify-content: flex-end; }
+.manta-inline .manta-reader-tools button {
+  min-height: var(--manta-space-4);
+  font-size: var(--manta-size-xs);
+  padding: 0 var(--manta-space-2);
+}
+.manta-inline .manta-reader-stage { min-height: var(--manta-diagrams-inline-min-height); border: 0; border-radius: 0; }
+
+.manta-reader-source { font-size: var(--manta-size-sm); margin-top: var(--manta-space-3); }
+.manta-reader-source summary { cursor: pointer; min-height: var(--manta-control-height); }
+.manta-reader-source pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: var(--manta-diagrams-source-max-height);
+  overflow: auto;
+  padding: var(--manta-space-3);
+  background: var(--manta-surface);
+  border-radius: var(--manta-radius-sm);
+}
+
+.manta-reader-error { padding: var(--manta-space-4); font-size: var(--manta-size-md); overflow-wrap: anywhere; color: var(--manta-error); }
+
+.manta-open-diagram { display: block; margin: var(--manta-space-2) auto; }
+
+@media (max-width: 600px) {
+  .manta-reader { padding: var(--manta-space-2); }
+  .manta-reader-tools button { font-size: var(--manta-size-xs); padding: var(--manta-space-1) var(--manta-space-2); }
+  .manta-reader-stage { height: 55vh; }
+}
+
+@media (prefers-reduced-motion: reduce) { .manta-reader * { scroll-behavior: auto; } }

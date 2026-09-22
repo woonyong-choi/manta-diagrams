@@ -1,7 +1,7 @@
 import mermaid from 'mermaid';
 import DOMPurify from 'dompurify';
 import {render, verify} from './renderer.mjs';
-import {mermaidTheme, palettes, fontFamily} from './theme.mjs';
+import {mermaidTheme, palettes} from './theme.mjs';
 import {keepNoteLink} from './sanitize.mjs';
 
 // The bundled Mermaid instance sanitizes SVG before our own host boundary.
@@ -69,7 +69,6 @@ export function renderDocument(source, {id, dark = false, original = false} = {}
         ` : '',
       } : {}),
       htmlLabels: false, maxTextSize: 50000, maxEdges: 500,
-      fontFamily,
       flowchart: {htmlLabels: false, useMaxWidth: false, nodeSpacing: 36, rankSpacing: 56},
       sequence: {useMaxWidth:false, actorMargin:42, width:130, diagramMarginX:24, diagramMarginY:24, mirrorActors:false},
       railroad: {terminalFill:palette.surface,terminalStroke:palette.border,terminalTextColor:palette.ink,

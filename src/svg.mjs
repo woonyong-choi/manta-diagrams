@@ -1,5 +1,6 @@
 import {assert} from './parse.mjs';
 import {palettes, fontFamily} from './theme.mjs';
+import {tokensCSS} from './tokens.generated.mjs';
 
 export const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 export const num = n => {assert(Number.isFinite(n),'그림 좌표가 유효하지 않습니다.');return Math.round(n*1000)/1000;};
@@ -73,8 +74,8 @@ export function frame(body,width,height,type,id='md',title='') {
   return `<svg xmlns="http://www.w3.org/2000/svg" class="md-diagram" data-type="${esc(type)}" width="${num(width)}" height="${num(height)}" viewBox="0 0 ${num(width)} ${num(height)}" role="img" aria-labelledby="${id}-title ${id}-desc"><title id="${id}-title">${esc(title||type)}</title><desc id="${id}-desc">Mermaid 원문으로부터 생성한 ${esc(type)} 다이어그램.</desc><defs>${defs}</defs><rect width="100%" height="100%" fill="${token('paper')}"/>${body}</svg>`;
 }
 export const themeCSS = `
-.md-surface{${Object.keys(palettes.light).map(key=>`--md-${key}:light-dark(${palettes.light[key]},${palettes.dark[key]});`).join('')}}
+${tokensCSS}
 .theme-light .md-surface,[data-theme=light] .md-surface{color-scheme:light}.theme-dark .md-surface,.dark .md-surface,[data-theme=dark] .md-surface{color-scheme:dark}
 .md-surface[data-theme=light]{color-scheme:light}.md-surface[data-theme=dark]{color-scheme:dark}
-.md-diagram{font-family:${fontFamily};display:block}.md-diagram [data-edge]{vector-effect:non-scaling-stroke}
+.md-diagram{font-family:var(--manta-font-sans);display:block}.md-diagram [data-edge]{vector-effect:non-scaling-stroke}
 `;

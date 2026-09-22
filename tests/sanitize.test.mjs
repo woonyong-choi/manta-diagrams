@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
+import {palettes} from '../src/theme.mjs';
 const dom = new JSDOM('<!doctype html><body></body>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
@@ -22,9 +23,9 @@ test('SVG sanitization preserves the presentation lost by HTML sanitization', ()
     assert.equal(svg.querySelector('style,[style]'),null);
     assert.equal(svg.style.filter,'none');
     assert.equal(svg.querySelector('.railroad-line').getAttribute('stroke-width'),'2');
-    assert.equal(svg.querySelector('rect').getAttribute('fill'),dark?'#161b22':'#f6f8fa');
+    assert.equal(svg.querySelector('rect').getAttribute('fill'),palettes[dark?'dark':'light'].surface);
     assert.equal(svg.querySelector('rect').getAttribute('opacity'),'0.8');
-    assert.equal(svg.querySelector('text').getAttribute('fill'),dark?'#e6edf3':'#1f2328');
+    assert.equal(svg.querySelector('text').getAttribute('fill'),palettes[dark?'dark':'light'].ink);
     assert.equal(svg.querySelector('text').getAttribute('font-weight'),'500');
     assert.equal(svg.querySelector('text').textContent,'원문 라벨');
     assert.equal(svg.querySelector('.railroad-line').getAttribute('stroke-dasharray'),'5 4');
