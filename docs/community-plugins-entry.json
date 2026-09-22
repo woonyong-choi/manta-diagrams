@@ -1,0 +1,7 @@
+{
+    "id": "manta-diagrams",
+    "name": "Manta Diagrams",
+    "author": "Woonyong Choi",
+    "description": "Read Mermaid diagrams in a focused viewer with pan, zoom, SVG export and optional document layouts.",
+    "repo": "woonyong-choi/manta-diagrams"
+}

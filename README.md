@@ -27,8 +27,8 @@ flowchart LR
 The note body and focused viewer share the same renderer. **Original view** compares the original rendering without editing the note. The command also accepts a selected diagram. Disabling Manta returns ordinary `mermaid` blocks to Obsidian when the note is rendered again.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">
-  <img src="docs/assets/manta-diagrams-intro.gif" alt="Manta Diagrams: edit Mermaid labels and add or remove a connected step, then see the rendered result" width="1200">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/woonyong-choi/manta-diagrams/main/docs/assets/manta-diagrams-intro-dark.gif">
+  <img src="https://raw.githubusercontent.com/woonyong-choi/manta-diagrams/main/docs/assets/manta-diagrams-intro.gif" alt="Manta Diagrams: edit Mermaid labels and add or remove a connected step, then see the rendered result" width="1200">
 </picture>
 
 A six-second loop of source edits and the actual renderer's results: rename a label, add a connected step and remove it. This is a fixture with condensed timing, not a recording of native Obsidian or simulated node animation.

@@ -13,8 +13,8 @@
 3. 도해의 **Open diagram**을 누르거나, 블록 안에 커서를 두고 **Manta Diagrams: Open diagram under cursor**를 실행합니다. **Fit**, **Reading size**, 이동·확대와 **Save SVG**를 사용할 수 있습니다.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/manta-diagrams-intro-dark.gif">
-  <img src="docs/assets/manta-diagrams-intro.gif" alt="Mermaid 라벨을 수정하고 연결된 단계를 추가·삭제하면 실제 렌더러의 결과가 바뀌는 Manta Diagrams" width="1200">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/woonyong-choi/manta-diagrams/main/docs/assets/manta-diagrams-intro-dark.gif">
+  <img src="https://raw.githubusercontent.com/woonyong-choi/manta-diagrams/main/docs/assets/manta-diagrams-intro.gif" alt="Mermaid 라벨을 수정하고 연결된 단계를 추가·삭제하면 실제 렌더러의 결과가 바뀌는 Manta Diagrams" width="1200">
 </picture>
 
 라벨 수정과 연결된 단계의 추가·삭제를 실제 렌더러 결과와 함께 6초 루프로 보여줍니다. 공개 예제의 편집 시간을 줄인 데모이며, Obsidian 실행 녹화나 노드 이동 애니메이션은 아닙니다.
