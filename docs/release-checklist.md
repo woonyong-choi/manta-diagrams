@@ -71,3 +71,43 @@ Release metadata and assets verified: 0.1.0
 ## 결과
 
 전 항목 PASS. `isDesktopOnly` 값 자체의 타당성(정말 데스크톱 전용이어야 하는지)은 src 변경 권한이 없는 이 WP 범위 밖이라 재판단하지 않았다.
+
+## 재검증 (2026-09-23, manta-tokens 반영 후)
+
+디자인 토큰 통일(`style: manta-tokens 로 디자인 토큰 통일`)이 `src/` 를 바꿨으므로 최신 소스로 다시 빌드·검증하고
+draft 릴리스 자산을 교체했다.
+
+```
+$ npm run build          # main.js 5,755,552 B, styles.css 11,083 B
+$ npm test               # ℹ tests 28 / ℹ pass 28 / ℹ fail 0
+$ node tools/verify-release.mjs
+Release metadata and assets verified: 0.1.0
+```
+
+### 자산 교체
+
+draft 릴리스는 두 개가 같은 태그 `0.1.0` 을 쓴다(신규 id 394069500 / 구 id 388456529). `gh release upload 0.1.0` 은
+어느 쪽을 고를지 모호하므로 릴리스 id 를 지정해 REST API 로 기존 자산 3개를 지우고 새로 올렸다.
+구 draft(id 388456529)는 그대로 둔다.
+
+| 자산 | 크기(B) | sha256 |
+| --- | --- | --- |
+| `main.js` | 5,755,552 | `16071d844b1fd68b7883186e590a9a90c95d4e6f652f77177d583a55cc8204e7` |
+| `manifest.json` | 333 | `b70b95aeab70cc57bf8ae3080c8ecf1bdc1629a28d774cfc678adaddc43405b3` |
+| `styles.css` | 11,083 | `102b534226337d3f2e03b3c0c4dd944947ebabf8b592d2350ef6cde1bfc47cde` |
+
+업로드된 자산을 다시 내려받아 계산한 sha256 이 로컬 빌드 산출물과 모두 일치함을 확인했다.
+
+### 토큰 일관성
+
+```
+$ node ../manta-tokens/scripts/sync.mjs --check
+0 file(s) drifted
+$ node ../manta-tokens/scripts/check-usage.mjs styles.css
+styles.css: ok (0건)
+```
+
+### 남은 일
+
+- draft → publish 전환은 사람이 한다(지시대로).
+- 구 draft(id 388456529) 삭제 여부는 여전히 미결.
