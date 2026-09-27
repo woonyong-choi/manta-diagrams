@@ -45,7 +45,7 @@ Authored styling and links stay with bundled Mermaid; JavaScript callbacks are d
 
 The tested mindmap `::icon(fa fa-book)` currently displays its node text and relationships without the book icon. External icon assets are not fetched.
 
-Everything runs locally. The plugin does not write notes, call an AI service or load its renderer from a CDN. [Compatibility and limits](docs/user-guide.md#compatibility) · [Verification record](docs/validation.md)
+Everything runs locally. The plugin does not write notes or load its renderer from a CDN. [Compatibility and limits](docs/user-guide.md#compatibility) · [Verification record](docs/validation.md)
 
 ## A few useful views of the same work
 
