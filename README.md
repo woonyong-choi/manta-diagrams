@@ -2,7 +2,11 @@
 
 [English](README.md) · [한국어](README.ko.md)
 
-Read Mermaid diagrams with Manta's layout directly in your notes. Make room for long labels, open a focused viewer and save an SVG without changing the source note.
+Manta Diagrams is an Obsidian plugin that renders Mermaid source in a focused viewer with room for long labels, pan and zoom, and SVG export.
+
+- The note remains ordinary Mermaid text. The renderer does not rewrite the source, and disabling the plugin returns the standard Obsidian rendering path.
+- The same parse, layout, SVG, and sanitization pipeline serves Reading view, Live Preview, the focused viewer, and reproducible media fixtures.
+- Version 0.1.0 is a release candidate. Automated coverage includes 31 layout families, but native Obsidian installation and Community submission are still pending.
 
 **[User guide](docs/user-guide.md) · [Roadmap](ROADMAP.md)**
 
@@ -45,9 +49,7 @@ Everything runs locally. The plugin does not write notes, call an AI service or 
 
 ## A few useful views of the same work
 
-Use [Manta Graph](https://github.com/woonyong-choi/manta-graph) to follow the supporting notes, [Manta Code Blocks](https://github.com/woonyong-choi/manta-code-blocks) to try the example and [Manta Calendar](https://github.com/woonyong-choi/manta-calendar) to return to a dated review. Each plugin works on its own; notes and links connect the work today.
-
-**Manta itself is in development and has not been released.** I’m building it to turn source material into a personal wiki you can keep adding to. Shared AI tools and automatic handoffs between the four plugins are planned. [Roadmap](ROADMAP.md)
+The plugins work independently and share ordinary Markdown and links: [Manta Graph](https://github.com/woonyong-choi/manta-graph), [Manta Code Blocks](https://github.com/woonyong-choi/manta-code-blocks), and [Manta Calendar](https://github.com/woonyong-choi/manta-calendar).
 
 ## Development
 
